@@ -2,10 +2,68 @@
 #define VECTOR_HPP
 
 #include <iostream>
+#include <memory>
+#include <cstddef>
 
 namespace ft
 {
-	template <class T,class Allocator = std::allocator<T>> class vector
+	template <class T> struct vectorIterator
+	{
+		typedef std::random_access_iterator_tag	iterator_category;  
+		typedef std::ptrdiff_t					difference_type; 	
+		typedef T 								value_type;		
+		typedef T* 								pointer;		
+		typedef T& 								reference;		
+
+		vectorIterator(pointer ptr) : _ptr(ptr){}
+
+		reference operator*() const {
+			return *_ptr;
+		}
+
+    	pointer operator->() {
+			return _ptr;
+		}
+
+		vectorIterator& operator++() {
+			_ptr++;
+			return *this;
+		}
+
+		vectorIterator operator++(int) {
+			vectorIterator tmp = *this;
+			++(*this);
+			return tmp;
+		}
+
+		vectorIterator& operator--() {
+			_ptr--;
+			return *this;
+		}
+
+		vectorIterator operator--(int) {
+			vectorIterator tmp = *this;
+			--(*this);
+			return tmp;
+		}
+
+		friend bool operator== (const vectorIterator& a, const vectorIterator& b) {
+			return a._ptr == b._ptr;
+		};
+
+    	friend bool operator!= (const vectorIterator& a, const vectorIterator& b) {
+			return a._ptr != b._ptr;
+		};
+
+
+		private:
+			pointer	_ptr;
+	};
+	
+
+
+	template < class T,class Allocator = std::allocator<T> > 
+	class vector
 	{
 	public:
 	
@@ -18,37 +76,41 @@ namespace ft
 		typedef typename allocator_type::const_reference	const_reference;
 		typedef typename allocator_type::pointer			pointer;
 		typedef typename allocator_type::const_pointer		const_pointer;
+		typedef vectorIterator<T>							iterator;
+		typedef const iterator								const_iterator;
 		
 	// Member functions
 	// Contructors (docs: https://en.cppreference.com/w/cpp/container/vector/vector)
 
 		vector(){}//until C++17 (1)
-		
+
 		explicit vector(const Allocator& alloc = Allocator())//until C++17 (2)
-		: _alloc(alloc), _start(nullptr), _index(nullptr), _capacity(nullptr){}
+		: _alloc(alloc), _start(NULL), _end(NULL), _end_capacity(NULL){}
 		
 		explicit vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator())//until C++11 (3)
-		: _alloc(alloc), _start(nullptr), _index(nullptr), _capacity(nullptr){
+		: _alloc(alloc), _start(NULL), _end(NULL), _end_capacity(NULL){
 			_start = _alloc.allocate(count);
-			_capacity = _start + count;
-			_index = _start;
+			_end_capacity = _start + count;
+			_end = _start;
 			while (count--){
-				_alloc.construct(_index);
-				_index++;
+				// std::cout << ".\n";
+				_alloc.construct(_end, value);
+				_end++;
 			}
 		}
 
-		template <class InputIt> vector(InputIt first, InputIt last, const Allocator& alloc = Allocator()){}//until C++20 (5)
+		// template <class InputIt> vector(InputIt first, InputIt last, const Allocator& alloc = Allocator()){}//until C++20 (5)
 		
-		vector(const vector& other)//until C++20 (6)
-		: _alloc(other.alloc), _start(nullptr), _index(nullptr), _capacity(nullptr){
-			this->insert(this->begin(), other->begin(), other->end())
-		}
+		// vector(const vector& other)//until C++20 (6)
+		// : _alloc(other.alloc), _start(NULL), _end(NULL), _end_capacity(NULL){
+		// 	this->insert(this->begin(), other->begin(), other->end())
+		// }
 		
 		// Destructor
 		~vector(){
 			this->clear();
-			_alloc.deallocate(_start, this->capacity());
+			if (_start)
+				_alloc.deallocate(_start, this->capacity());
 		}
 		// Assigners
 		/*
@@ -58,7 +120,14 @@ namespace ft
 		** 
 		** @return *this
 		*/
-		vector	&operator=(vector const &other);
+		// vector	&operator=(vector const &other)
+		// {
+		// 	if (*this != other){
+		// 		this->clear();
+		// 		this->insert(this->begin(), other->begin(), other->end());
+		// 	}
+		// 	return (*this);
+		// }
 
 		/*
 		** @brief Replaces the contents with count copies of value value.
@@ -68,7 +137,9 @@ namespace ft
 		** 
 		** 
 		*/
-		void assign( size_type count, const T& value );
+		void assign( size_type count, const T& value ){
+
+		}
 
 		/*
 		** @brief Replaces the contents with copies of those in the range [first, last). 
@@ -79,7 +150,9 @@ namespace ft
 		** 
 		** 
 		*/
-		template <class InputIt> void assign(InputIt first, InputIt last);
+		template <class InputIt> void assign(InputIt first, InputIt last){
+
+		}
 
 		// Getter
 		/*
@@ -89,7 +162,9 @@ namespace ft
 		** 
 		** @return The associated allocator.
 		*/
-		allocator_type get_allocator() const;
+		allocator_type get_allocator() const{
+			return (this->_alloc);
+		}
 
 	// Element access
 		//At 
@@ -104,7 +179,9 @@ namespace ft
 		** @exception std::out_of_range if !(pos < size()).
 		** 
 		*/
-		reference at( size_type pos );
+		reference at( size_type pos ){
+
+		}
 		/*
 		** @brief Returns a reference to the element at specified location pos, with bounds checking.
 		**If pos is not within the range of the container, an exception of type std::out_of_range is thrown.
@@ -116,7 +193,9 @@ namespace ft
 		** @exception std::out_of_range if !(pos < size()).
 		** 
 		*/
-		const_reference at( size_type pos ) const;
+		const_reference at( size_type pos ) const{
+
+		}
 
 		// Operator []
 		/*
@@ -129,7 +208,9 @@ namespace ft
 		**
 		** 
 		*/
-		reference operator[]( size_type pos );
+		reference operator[]( size_type pos ){
+
+		}
 		/*
 		** @brief Returns a reference to the element at specified location pos. No bounds checking is performed.
 		** 
@@ -140,7 +221,9 @@ namespace ft
 		**
 		** 
 		*/
-		const_reference operator[](size_type pos) const;
+		const_reference operator[](size_type pos) const{
+
+		}
 
 		// Front
 		/*
@@ -154,7 +237,9 @@ namespace ft
 		**
 		** 
 		*/
-		reference front();
+		reference front(){
+
+		}
 		/*
 		** @brief Returns a reference to the first element in the container.
 		** Calling front on an empty container is undefined.
@@ -166,7 +251,9 @@ namespace ft
 		**
 		** 
 		*/
-		const_reference front() const;
+		const_reference front() const{
+
+		}
 
 		// Back
 		/*
@@ -180,7 +267,9 @@ namespace ft
 		**
 		** 
 		*/
-		reference back();
+		reference back(){
+
+		}
 		/*
 		** @brief Returns a reference to the last element in the container.
 		** Calling back on an empty container causes undefined behavior.
@@ -192,7 +281,9 @@ namespace ft
 		**
 		** 
 		*/
-		const_reference back() const;
+		const_reference back() const{
+
+		}
 
 		// Data
 		/*
@@ -207,7 +298,9 @@ namespace ft
 		**
 		** 
 		*/
-		T* data();
+		T* data(){
+
+		}
 		/*
 		** @brief Returns pointer to the underlying array serving as element storage.
 		** The pointer is such that range [data(); data() + size()) is always a valid range, even if the container is empty (data() is not dereferenceable in that case).
@@ -220,7 +313,9 @@ namespace ft
 		**
 		** 
 		*/
-		const T* data() const;
+		const T* data() const{
+
+		}
 	
 	// Iterators
 		// Begin
@@ -235,7 +330,9 @@ namespace ft
 		**
 		** 
 		*/
-		// iterator begin();
+		iterator begin(){
+			return iterator(_start);
+		}
 		/*
 		** @brief Returns an iterator to the first element of the vector.
 		** If the vector is empty, the returned iterator will be equal to end().
@@ -247,7 +344,9 @@ namespace ft
 		**
 		** 
 		*/
-		// const_iterator begin() const;
+		const_iterator begin() const{
+			return const_iterator(_start);
+		}
 
 		// End
 		/*
@@ -261,7 +360,9 @@ namespace ft
 		**
 		** 
 		*/
-		// iterator end();
+		iterator end(){
+			return iterator(_end);
+		}
 		/*
 		** @brief  Returns an iterator to the element following the last element of the vector.
 		** This element acts as a placeholder; attempting to access it results in undefined behavior.
@@ -273,7 +374,9 @@ namespace ft
 		**
 		** 
 		*/
-		// const_iterator end() const;
+		const_iterator end() const{
+			return const_iterator(_end);
+		}
 
 		// RBegin
 		/*
@@ -288,7 +391,9 @@ namespace ft
 		**
 		** 
 		*/
-		// reverse_iterator rbegin();
+		// reverse_iterator rbegin(){
+
+		// }
 		/*
 		** @brief Returns a reverse iterator to the first element of the reversed vector.
 		** It corresponds to the last element of the non-reversed vector. 
@@ -301,7 +406,9 @@ namespace ft
 		**
 		** 
 		*/
-		// const_reverse_iterator rbegin() const;
+		// const_reverse_iterator rbegin() const{
+
+		// }
 
 		// REnd
 		/*
@@ -316,7 +423,9 @@ namespace ft
 		**
 		** 
 		*/
-		// reverse_iterator rend();
+		// reverse_iterator rend(){
+
+		// }
 		/*
 		** @brief Returns a reverse iterator to the element following the last element of the reversed vector.
 		** It corresponds to the element preceding the first element of the non-reversed vector.
@@ -329,7 +438,9 @@ namespace ft
 		**
 		** 
 		*/
-		// const_reverse_iterator rend() const;
+		// const_reverse_iterator rend() const{
+
+		// }
 
 	// Capacity
 		// Empty
@@ -343,7 +454,9 @@ namespace ft
 		**
 		** 
 		*/
-		bool empty() const;
+		bool empty() const{
+			return (this->begin() == this->end() ? true : false);
+		}
 
 		// Size
 		/*
@@ -356,7 +469,9 @@ namespace ft
 		**
 		** 
 		*/
-		size_type size() const;
+		size_type size() const {
+			return (_end -_start);
+		}
 		
 		// Max size
 		/*
@@ -370,11 +485,14 @@ namespace ft
 		**
 		** 
 		*/
-		size_type max_size() const;
+		size_type max_size() const{
+			return (_alloc.max_size());
+		}
 
 		// Reserve
 		/*
-		** @brief Increase the capacity of the vector (the total number of elements that the vector can hold without requiring reallocation) to a value that's greater or equal to new_cap. If new_cap is greater than the current capacity(), new storage is allocated, otherwise the function does nothing.
+		** @brief Increase the capacity of the vector (the total number of elements that the vector can hold without requiring reallocation) to a value that's greater or equal to new_cap.
+		** If new_cap is greater than the current capacity(), new storage is allocated, otherwise the function does nothing.
 		** reserve() does not change the size of the vector.
 		** If new_cap is greater than capacity(), all iterators, including the past-the-end iterator, and all references to the elements are invalidated. Otherwise, no iterators or references are invalidated.
 		** 
@@ -387,19 +505,49 @@ namespace ft
 		** If an exception is thrown, this function has no effect (strong exception guarantee).
 		** 
 		*/
-		void reserve( size_type new_cap );
+		void reserve( size_type new_cap ){
+			if (new_cap > this->max_size())
+				return ;
+			if (new_cap > this->capacity()){
+				pointer new_start = pointer();
+				pointer new_end = pointer();
+				pointer new_end_capacity = pointer();
 
-		// Capacity
+				int new_capacity = new_cap; 
+
+				new_start = _alloc.allocate( new_capacity );
+				new_end = new_start;
+				new_end_capacity = new_start + new_capacity;
+			
+				for (iterator i = this->begin(); i != this->end(); i++){
+					_alloc.construct(new_end, *i);
+					new_end++;
+				}
+
+				for (size_type l = 0; l < this->size(); l++)
+					_alloc.destroy(_start + l);
+				if (_start)
+					_alloc.deallocate(_start, this->capacity());
+				
+				_start = new_start;
+				_end = new_end;
+				_end_capacity = new_end_capacity;
+			}
+		}
+
+		// capacity
 		/*
 		** @brief Returns the number of elements that the container has currently allocated space for.
 		** 
 		** @param none
 		** 
-		** @return Capacity of the currently allocated storage.
+		** @return capacity of the currently allocated storage.
 		** 
 		** 
 		*/
-		size_type capacity() const;
+		size_type capacity() const{
+			return _end_capacity - _start;
+		}
 
 	//Modifiers 
 		// Clear
@@ -414,7 +562,11 @@ namespace ft
 		** 
 		** 
 		*/
-		void clear();
+		void clear(){
+			for (size_type l = 0; l < this->size(); l++)
+				_alloc.destroy(_start + l);
+			_end = _start;
+		}
 
 		// Insert
 		/*
@@ -427,7 +579,77 @@ namespace ft
 		** 
 		** 
 		*/
-		// iterator insert( iterator pos, const T& value );// (1)
+		iterator insert(iterator pos, const T& value)// (1)
+		{
+
+			// if (size_type(_end_capacity - _end) >= this->size() + 1)
+			// {
+			// 	for (size_type i = 0; i < pos_len; i++)
+			// 	// shift pra direita de todos os valores a depois da posição
+			// 		_alloc.construct(_end - i, *(_end - i - 1));
+			// 	_end++;
+			// 	// insere o valor desejado na posição escolhida
+			// 	_alloc.construct(&(*position), val);
+			// }
+
+			size_type pos_len = &(*pos) - _start;
+			// if ( pos_len > this->size()){
+			// 	std::cout << "ta errado\n";
+			// 	return this->begin();
+			// }
+			// caso ainda tenha espaço, somente sera deslocado as posiçoes necessarias para liberar a posição solicitada
+			if (size_type(_end_capacity - _end) >= this->size() + 1)
+			{
+				for (size_type i = 0; i < pos_len; i++)
+					_alloc.construct(_end - i, *(_end - i - 1));
+				_end++;
+				_alloc.construct(&(*pos), value);
+			}
+			// senão, criaremos um novo vetor com um novo tamanho, o sufiente pra caber a inserção
+			else
+			{
+				pointer new_start = pointer();
+				pointer new_end = pointer();
+				pointer new_end_capacity = pointer();
+
+				int new_capacity;
+				if (this->size() + 1 < this->max_size())
+					new_capacity = this->size() + 1 ; 
+				else
+					new_capacity = this->max_size() - 1;
+
+				new_start = _alloc.allocate( new_capacity );
+				new_end = new_start + this->size() + 1;
+				new_end_capacity = new_start + new_capacity;
+			
+				// copia literalmente tudo ate a posição desejada para o novo vetor
+				for (size_type i = 0; i < pos_len && i <= this->size(); i++){
+					if (i < this->size())
+						_alloc.construct(new_start + i, *(_start + i));
+					else
+						_alloc.construct(new_start + i, T());					
+				}
+				if ( pos_len > this->size()){
+					std::cout << "ta errado\n";
+		
+				} else {
+					// insere o novo valor
+					_alloc.construct(new_start + pos_len, value);
+					// copia o restando do vetor, caso tenha
+					for (size_type j = 0; j < this->size() - pos_len; j++)
+						_alloc.construct(new_end - j - 1, *(_end - j - 1));
+					// destruimos o vetor antigo e atribuimos os novos valores 
+				}
+				this->clear();
+				if (_start)
+					_alloc.deallocate(_start, this->capacity());
+				
+				_start = new_start;
+				_end = new_end;
+				_end_capacity = new_end_capacity;
+			}
+			return (iterator(_start + pos_len));
+		}
 		/*
 		** @brief inserts count copies of the value before pos
 		** 
@@ -439,7 +661,9 @@ namespace ft
 		** 
 		** 
 		*/
-		// void insert( iterator pos, size_type count, const T& value ); // (3)
+		// void insert(iterator pos, size_type count, const T& value){// (3)
+
+		// } 
 		/*
 		** @brief inserts elements from range [first, last) before pos.
 		** 
@@ -451,7 +675,9 @@ namespace ft
 		** 
 		** 
 		*/
-		// template <class InputIt> void insert( iterator pos, InputIt first, InputIt last ); // (4)
+		// template <class InputIt> void insert( iterator pos, InputIt first, InputIt last ){
+
+		// } // (4)
 
 		// Erase
 		/*
@@ -464,7 +690,9 @@ namespace ft
 		** 
 		** 
 		*/
-		// iterator erase( iterator pos );
+		iterator erase( iterator pos ){
+
+		}
 		/*
 		** @brief  Removes the elements in the range [first, last).
 		** 
@@ -478,7 +706,9 @@ namespace ft
 		** 
 		** 
 		*/
-		// iterator erase( iterator first, iterator last );
+		iterator erase( iterator first, iterator last ){
+
+		}
 
 
 		// Push Back
@@ -491,7 +721,9 @@ namespace ft
 		** 
 		** @exception If an exception is thrown (which can be due to Allocator::allocate() or element copy/move constructor/assignment), this function has no effect (strong exception guarantee).
 		*/
-		void push_back( const T& value );
+		void push_back( const T& value ){
+
+		}
 
 		// Pop Back
 		/*
@@ -503,7 +735,9 @@ namespace ft
 		** 
 		** @exception Throws nothing.
 		*/
-		void pop_back();
+		void pop_back(){
+
+		}
 
 		// Resize
 		/*
@@ -516,7 +750,9 @@ namespace ft
 		** 
 		** @exception If an exception is thrown, this function has no effect (strong exception guarantee).
 		*/
-		void resize( size_type count, T value = T() );
+		void resize(size_type count, T value = T()){
+			
+		}
 
 		// Swap
 		/*
@@ -527,13 +763,15 @@ namespace ft
 		** @return none
 		** 
 		*/
-		void swap( vector& other );
+		// void swap( vector& other ){
+
+		// }
 
 	private:
 		allocator_type _alloc;
 		pointer _start;
-		pointer _index;
-		pointer _capacity;
+		pointer _end;
+		pointer _end_capacity;
 		
 	// operators
 	};

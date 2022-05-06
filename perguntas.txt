@@ -1,0 +1,28 @@
+devo manter os segs originais?
+exemplo de seg :
+
+	ft::vector<int>::iterator itFt = ft.begin();
+	itFt++;
+	itFt++;
+	itFt++;
+	itFt++;
+	itFt++;
+	itFt++;
+	ft.insert(itFt, 3, 4);
+	for (ft::vector<int>::iterator it = ft.begin(); it != ft.end(); it++){
+		std::cout << *it << std::endl ;
+	}
+
+		std::cout << "-------------------------------" << std::endl ;
+	std::vector<int>::iterator itOg = og.begin();
+	itOg++;
+	itOg++;
+	itOg++;
+	itOg++;
+	itOg++;
+	itOg++;
+	og.insert(itOg, 3, 4);
+	for (std::vector<int>::iterator it = og.begin(); it != og.end(); it++){
+		std::cout << *it << std::endl ;
+	}
+--------------------------------------------------------------------------

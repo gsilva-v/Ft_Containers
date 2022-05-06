@@ -4,6 +4,9 @@
 #include <iostream>
 #include <memory>
 #include <cstddef>
+#include <exception>
+#include <sstream>
+#include <cmath>
 
 namespace ft
 {
@@ -59,14 +62,11 @@ namespace ft
 		private:
 			pointer	_ptr;
 	};
-	
-
 
 	template < class T,class Allocator = std::allocator<T> > 
 	class vector
 	{
 	public:
-	
 	// Member Types
 		typedef	T											value_type;
 		typedef	Allocator									allocator_type;
@@ -99,12 +99,16 @@ namespace ft
 			}
 		}
 
-		// template <class InputIt> vector(InputIt first, InputIt last, const Allocator& alloc = Allocator()){}//until C++20 (5)
-		
-		// vector(const vector& other)//until C++20 (6)
-		// : _alloc(other.alloc), _start(NULL), _end(NULL), _end_capacity(NULL){
-		// 	this->insert(this->begin(), other->begin(), other->end())
+		// template <class InputIt> vector(InputIt first, InputIt last, const Allocator& alloc = Allocator())//until C++20 (5)
+		// : _alloc(alloc), _start(NULL), _end(NULL), _end_capacity(NULL)
+		// {
+		// 	this->insert(this->begin(), first, last);
 		// }
+		
+		vector(const vector& other)//until C++20 (6)
+		: _alloc(other._alloc), _start(NULL), _end(NULL), _end_capacity(NULL){
+			this->insert(this->begin(), other.begin(), other.end());
+		}
 		
 		// Destructor
 		~vector(){
@@ -120,14 +124,14 @@ namespace ft
 		** 
 		** @return *this
 		*/
-		// vector	&operator=(vector const &other)
-		// {
-		// 	if (*this != other){
-		// 		this->clear();
-		// 		this->insert(this->begin(), other->begin(), other->end());
-		// 	}
-		// 	return (*this);
-		// }
+		vector	&operator=(vector const &other)
+		{
+			// if (*this != other){
+				this->clear();
+				this->insert(this->begin(), other.begin(), other.end());
+			// }
+			return (*this);
+		}
 
 		/*
 		** @brief Replaces the contents with count copies of value value.
@@ -138,7 +142,8 @@ namespace ft
 		** 
 		*/
 		void assign( size_type count, const T& value ){
-
+			this->clear();
+			this->insert(this->begin(), count, value);
 		}
 
 		/*
@@ -151,7 +156,10 @@ namespace ft
 		** 
 		*/
 		template <class InputIt> void assign(InputIt first, InputIt last){
-
+			if (&(*last) - &(*first) <= this->capacity()){
+				this->clear();
+				this->insert(this->begin(), first, last);
+			}
 		}
 
 		// Getter
@@ -180,7 +188,15 @@ namespace ft
 		** 
 		*/
 		reference at( size_type pos ){
+			std::ostringstream exception;
 
+			exception << "vector::_M_range_check: __n (which is " << pos << ") >= this->size() (which is " << this->size() << ")";
+			if (pos >= size())
+				throw (std::out_of_range(exception.str()));
+			iterator it = this->begin();
+			for (size_type i = 0; i < pos ;i++, it++)
+				;
+			return (*it);
 		}
 		/*
 		** @brief Returns a reference to the element at specified location pos, with bounds checking.
@@ -194,7 +210,15 @@ namespace ft
 		** 
 		*/
 		const_reference at( size_type pos ) const{
+			std::ostringstream exception;
 
+			exception << "vector::_M_range_check: __n (which is " << pos << ") >= this->size() (which is " << this->size() << ")";
+			if (pos >= size())
+				throw (std::out_of_range(exception.str()));
+			iterator it = this->begin();
+			for (size_type i = 0; i < pos ;i++, it++)
+				;
+			return (*it);
 		}
 
 		// Operator []
@@ -209,7 +233,10 @@ namespace ft
 		** 
 		*/
 		reference operator[]( size_type pos ){
-
+			iterator it = this->begin();
+			for (size_type i = 0; i < pos ;i++, it++)
+				;
+			return (*it);
 		}
 		/*
 		** @brief Returns a reference to the element at specified location pos. No bounds checking is performed.
@@ -222,7 +249,10 @@ namespace ft
 		** 
 		*/
 		const_reference operator[](size_type pos) const{
-
+			iterator it = this->begin();
+			for (size_type i = 0; i < pos ;i++, it++)
+				;
+			return (*it);
 		}
 
 		// Front
@@ -238,7 +268,7 @@ namespace ft
 		** 
 		*/
 		reference front(){
-
+			return (*(this->begin()));
 		}
 		/*
 		** @brief Returns a reference to the first element in the container.
@@ -252,7 +282,7 @@ namespace ft
 		** 
 		*/
 		const_reference front() const{
-
+			return (*(this->begin()));
 		}
 
 		// Back
@@ -268,7 +298,9 @@ namespace ft
 		** 
 		*/
 		reference back(){
-
+			iterator it = this->end();
+			it--;
+			return (*it);
 		}
 		/*
 		** @brief Returns a reference to the last element in the container.
@@ -282,7 +314,9 @@ namespace ft
 		** 
 		*/
 		const_reference back() const{
-
+			iterator it = this->end();
+			it--;
+			return (*it);
 		}
 
 		// Data
@@ -299,7 +333,7 @@ namespace ft
 		** 
 		*/
 		T* data(){
-
+			return (_start);
 		}
 		/*
 		** @brief Returns pointer to the underlying array serving as element storage.
@@ -314,7 +348,7 @@ namespace ft
 		** 
 		*/
 		const T* data() const{
-
+			return (_start);
 		}
 	
 	// Iterators
@@ -581,7 +615,6 @@ namespace ft
 		*/
 		iterator insert(iterator pos, const T& value)// (1)
 		{
-
 			// if (size_type(_end_capacity - _end) >= this->size() + 1)
 			// {
 			// 	for (size_type i = 0; i < pos_len; i++)
@@ -661,9 +694,66 @@ namespace ft
 		** 
 		** 
 		*/
-		// void insert(iterator pos, size_type count, const T& value){// (3)
+		void insert(iterator pos, size_type count, const T& value){// (3)
+			size_type pos_len = &(*pos) - _start;
+			// caso ainda tenha espaço, somente sera deslocado as posiçoes necessarias para liberar a posição solicitada
+			if (size_type(_end_capacity - _end) >= this->size() + count)
+			{
+				for (size_type j = 0; j < count; j++){
+					for (size_type i = this->size(); i > pos_len; i--)
+						_alloc.construct(_start + i, *(_start + i - 1));
+					_end++;
+					_alloc.construct(&(*pos), value);
+				}
+			}
+			// senão, criaremos um novo vetor com um novo tamanho, o sufiente pra caber a inserção
+			else
+			{
+				pointer new_start = pointer();
+				pointer new_end = pointer();
+				pointer new_end_capacity = pointer();
 
-		// } 
+				int new_capacity;
+				if (this->size() + count < this->max_size())
+					new_capacity = this->size() + count; 
+				else
+					new_capacity = this->max_size() - 1;
+
+				new_start = _alloc.allocate( new_capacity );
+				new_end = new_start + this->size() + count;
+				new_end_capacity = new_start + new_capacity;
+			
+				// copia literalmente tudo ate a posição desejada para o novo vetor
+				for (size_type i = 0; i < pos_len && i <= this->size(); i++){
+					if (i < this->size())
+						_alloc.construct(new_start + i, *(_start + i));
+					else
+						_alloc.construct(new_start + i, T());					
+				}
+				if ( pos_len > this->size()){
+					std::cout << "ta errado\n";
+		
+				} else {
+					// insere os novos valores
+					for (size_type j = 0; j < count; j++)
+						_alloc.construct(new_start + pos_len + j, value);
+					
+
+					// copia o restando do vetor, caso tenha
+					for (size_type j = 0; j < this->size() - pos_len; j++)
+						_alloc.construct(new_end - j - 1, *(_end - j - 1));
+					// destruimos o vetor antigo e atribuimos os novos valores 
+				}
+				this->clear();
+				if (_start)
+					_alloc.deallocate(_start, this->capacity());
+				
+				_start = new_start;
+				_end = new_end;
+				_end_capacity = new_end_capacity;
+			}
+			
+		} 
 		/*
 		** @brief inserts elements from range [first, last) before pos.
 		** 
@@ -675,9 +765,66 @@ namespace ft
 		** 
 		** 
 		*/
-		// template <class InputIt> void insert( iterator pos, InputIt first, InputIt last ){
+		template <class InputIt> void insert( iterator pos, InputIt first, InputIt last ){// (4)
+			size_type	rangeSpace = std::abs(&(*last) - &(*first));
+			size_type	pos_len = &(*pos) - _start;
+			if (this->size() + rangeSpace <= this->capacity()){
+				for (size_type j = 0; j < rangeSpace; j++){
+					for (size_type i = this->size(); i > pos_len; i--)
+						_alloc.construct(_start + i, *(_start + i - 1));
+					_end++;
+					_alloc.construct(_start + pos_len, *first);
+					first++;
+				}
+			} else {
 
-		// } // (4)
+				pointer new_start = pointer();
+				pointer new_end = pointer();
+				pointer new_end_capacity = pointer();
+
+				int new_capacity;
+				if (this->size() + rangeSpace < this->max_size())
+					new_capacity = this->size() + rangeSpace; 
+				else
+					new_capacity = this->max_size() - 1;
+
+				new_start = _alloc.allocate( new_capacity );
+				new_end = new_start + this->size() + rangeSpace;
+				new_end_capacity = new_start + new_capacity;
+			
+				// copia literalmente tudo ate a posição desejada para o novo vetor
+				for (size_type i = 0; i < pos_len && i <= this->size(); i++){
+					if (i < this->size())
+						_alloc.construct(new_start + i, *(_start + i));
+					else
+						_alloc.construct(new_start + i, T());					
+				}
+				if ( pos_len > this->size()){
+					std::cout << "ta errado\n";
+		
+				} else {
+					// insere os novos valores
+					for (size_type j = 0; j < rangeSpace; j++){
+
+						_alloc.construct(new_start + pos_len + j, *first);
+						first++;
+					}
+					
+
+					// copia o restando do vetor, caso tenha
+					for (size_type j = 0; j < this->size() - pos_len; j++)
+						_alloc.construct(new_end - j - 1, *(_end - j - 1));
+				}
+				// destruimos o vetor antigo e atribuimos os novos valores 
+				this->clear();
+				if (_start)
+					_alloc.deallocate(_start, this->capacity());
+				
+				_start = new_start;
+				_end = new_end;
+				_end_capacity = new_end_capacity;
+			}
+		} 
 
 		// Erase
 		/*
@@ -691,7 +838,15 @@ namespace ft
 		** 
 		*/
 		iterator erase( iterator pos ){
-
+			iterator ret = pos;
+			ret++;
+			size_type index = &(*pos) - _start;
+			
+			_alloc.destroy(this->_start + index);
+			for ( ; index < this->size() - 1 ; index++)
+				this->_alloc.construct(this->_start + index, *(this->_start + index + 1));
+			_end--;
+			return (ret);
 		}
 		/*
 		** @brief  Removes the elements in the range [first, last).
@@ -707,9 +862,15 @@ namespace ft
 		** 
 		*/
 		iterator erase( iterator first, iterator last ){
-
+			for (; first != last; first++, _end--)
+				_alloc.destroy(&(*first));
+			_alloc.destroy(&(*first));
+			size_type index = &(*first) - _start + 1;
+			size_type end = &(*last) - _start ;
+			for ( ; end < this->size() - 1 ; index++, end++)
+				this->_alloc.construct(this->_start + index, *(this->_start + end));
+			return (iterator(_end - 1));
 		}
-
 
 		// Push Back
 		/*
@@ -722,7 +883,9 @@ namespace ft
 		** @exception If an exception is thrown (which can be due to Allocator::allocate() or element copy/move constructor/assignment), this function has no effect (strong exception guarantee).
 		*/
 		void push_back( const T& value ){
-
+			this->reserve(this->size() + 1);
+			this->_alloc.construct(_start + this->size(), value);
+			this->_end++;
 		}
 
 		// Pop Back
@@ -736,7 +899,10 @@ namespace ft
 		** @exception Throws nothing.
 		*/
 		void pop_back(){
-
+			if (this->size() > 0){
+				this->_alloc.destroy(_start + this->size() - 1);
+				this->_end--;
+			}
 		}
 
 		// Resize
@@ -751,6 +917,8 @@ namespace ft
 		** @exception If an exception is thrown, this function has no effect (strong exception guarantee).
 		*/
 		void resize(size_type count, T value = T()){
+			if (count == this->size())
+				return ;
 			
 		}
 
@@ -763,9 +931,22 @@ namespace ft
 		** @return none
 		** 
 		*/
-		// void swap( vector& other ){
+		void swap( vector& other ){
+			allocator_type alloc_holder = other._alloc;
+			pointer	start_holder = other._start;
+			pointer	end_holder = other._end;
+			pointer	end_cap_holder = other._end_capacity;
 
-		// }
+			other._alloc = this->_alloc;
+			other._start = this->_start;
+			other._end = this->_end;
+			other._end_capacity = this->_end_capacity;
+
+			this->_alloc = alloc_holder;
+			this->_start = start_holder;
+			this->_end = end_holder;
+			this->_end_capacity = end_cap_holder;
+		}
 
 	private:
 		allocator_type _alloc;
@@ -773,11 +954,68 @@ namespace ft
 		pointer _end;
 		pointer _end_capacity;
 		
-	// operators
 	};
+	// operators
+
+	template< class T, class Alloc >bool operator== ( const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs ){
+		if (lhs.size() != rhs.size())
+			return false;
+		typename ft::vector<T>::iterator lIt = lhs.begin(); 
+		typename ft::vector<T>::iterator rIt = rhs.begin();
+		for (; lIt != lhs.end(); lIt++, rIt++){
+			if (*lIt != *rIt || rIt == rhs.end())
+				return false;
+		}
+		return true;
+	}
+
+	template< class T, class Alloc > bool operator!= ( const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs ){
+		return (!(lhs == rhs));
+	}
+
+	template< class T, class Alloc >bool operator<( const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs ){
+		typename ft::vector<T>::iterator lIt = lhs.begin(); 
+		typename ft::vector<T>::iterator rIt = rhs.begin();
+		for (; lIt != lhs.end(); lIt++, rIt++){
+			if (*lIt >= *rIt)
+				return false;
+		}
+		return true;
+	}
+
+	template< class T, class Alloc >bool operator<=( const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs ){
+		typename ft::vector<T>::iterator lIt = lhs.begin(); 
+		typename ft::vector<T>::iterator rIt = rhs.begin();
+		for (; lIt != lhs.end(); lIt++, rIt++){
+			if (*lIt > *rIt)
+				return false;
+		}
+		return true;
+	}
+
+	template< class T, class Alloc >bool operator>( const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs ){
+		typename ft::vector<T>::iterator lIt = lhs.begin(); 
+		typename ft::vector<T>::iterator rIt = rhs.begin();
+		for (; lIt != lhs.end(); lIt++, rIt++){
+			if (*lIt <= *rIt)
+				return false;
+		}
+		return true;
+	}
 	
+	template< class T, class Alloc >bool operator>=( const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs ){
+		typename ft::vector<T>::iterator lIt = lhs.begin(); 
+		typename ft::vector<T>::iterator rIt = rhs.begin();
+		for (; lIt != lhs.end(); lIt++, rIt++){
+			if (*lIt < *rIt)
+				return false;
+		}
+		return true;
+	}
 
-}
-
+	template< class T, class Alloc >void swap( ft::vector<T,Alloc>& lhs, ft::vector<T,Alloc>& rhs ){
+		lhs.swap(rhs);
+	}
+};
 
 #endif // VECTOR_HPP

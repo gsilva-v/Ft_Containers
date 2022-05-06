@@ -8,61 +8,12 @@
 #include <sstream>
 #include <cmath>
 
+
+#include "random_access_iterator.hpp"
+#include "reverse_iterator.hpp"
+
 namespace ft
 {
-	template <class T> struct vectorIterator
-	{
-		typedef std::random_access_iterator_tag	iterator_category;  
-		typedef std::ptrdiff_t					difference_type; 	
-		typedef T 								value_type;		
-		typedef T* 								pointer;		
-		typedef T& 								reference;		
-
-		vectorIterator(pointer ptr) : _ptr(ptr){}
-
-		reference operator*() const {
-			return *_ptr;
-		}
-
-    	pointer operator->() {
-			return _ptr;
-		}
-
-		vectorIterator& operator++() {
-			_ptr++;
-			return *this;
-		}
-
-		vectorIterator operator++(int) {
-			vectorIterator tmp = *this;
-			++(*this);
-			return tmp;
-		}
-
-		vectorIterator& operator--() {
-			_ptr--;
-			return *this;
-		}
-
-		vectorIterator operator--(int) {
-			vectorIterator tmp = *this;
-			--(*this);
-			return tmp;
-		}
-
-		friend bool operator== (const vectorIterator& a, const vectorIterator& b) {
-			return a._ptr == b._ptr;
-		};
-
-    	friend bool operator!= (const vectorIterator& a, const vectorIterator& b) {
-			return a._ptr != b._ptr;
-		};
-
-
-		private:
-			pointer	_ptr;
-	};
-
 	template < class T,class Allocator = std::allocator<T> > 
 	class vector
 	{
@@ -76,8 +27,10 @@ namespace ft
 		typedef typename allocator_type::const_reference	const_reference;
 		typedef typename allocator_type::pointer			pointer;
 		typedef typename allocator_type::const_pointer		const_pointer;
-		typedef vectorIterator<T>							iterator;
-		typedef const iterator								const_iterator;
+		typedef ft::random_access_iterator<value_type>			iterator;
+		typedef const ft::random_access_iterator<value_type> const_iterator;
+		typedef ft::reverse_iterator<value_type>			reverse_iterator;
+		typedef const ft::reverse_iterator<value_type> 		const_reverse_iterator;
 		
 	// Member functions
 	// Contructors (docs: https://en.cppreference.com/w/cpp/container/vector/vector)
@@ -93,7 +46,6 @@ namespace ft
 			_end_capacity = _start + count;
 			_end = _start;
 			while (count--){
-				// std::cout << ".\n";
 				_alloc.construct(_end, value);
 				_end++;
 			}
@@ -126,10 +78,8 @@ namespace ft
 		*/
 		vector	&operator=(vector const &other)
 		{
-			// if (*this != other){
-				this->clear();
-				this->insert(this->begin(), other.begin(), other.end());
-			// }
+			this->clear();
+			this->insert(this->begin(), other.begin(), other.end());
 			return (*this);
 		}
 
@@ -425,9 +375,9 @@ namespace ft
 		**
 		** 
 		*/
-		// reverse_iterator rbegin(){
-
-		// }
+		reverse_iterator rbegin(){
+			return (reverse_iterator(--(this->end())));
+		}
 		/*
 		** @brief Returns a reverse iterator to the first element of the reversed vector.
 		** It corresponds to the last element of the non-reversed vector. 
@@ -457,9 +407,9 @@ namespace ft
 		**
 		** 
 		*/
-		// reverse_iterator rend(){
-
-		// }
+		reverse_iterator rend(){
+			return (reverse_iterator(this->begin()));
+		}
 		/*
 		** @brief Returns a reverse iterator to the element following the last element of the reversed vector.
 		** It corresponds to the element preceding the first element of the non-reversed vector.

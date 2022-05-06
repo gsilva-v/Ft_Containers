@@ -10,9 +10,9 @@ int main(void)
 	std::vector<int> og1(10, 1);
 
 	std::cout << "------------ Ft ---------" << std::endl ;
-	ft::vector<int>::reverse_iterator it = ft.rbegin();
-		std::cout << *(it.base() - 1) << std::endl ;
-
+	for (ft::vector<int>::iterator it = ft.begin(); it != ft.end(); it++){
+		std::cout << *it << std::endl ;
+	}
 	// std::cout << "------------ Og ---------" << std::endl ;
 	// og.insert(og.begin() + 5, 7);
 	// std::vector<int>::reverse_iterator it = og.rbegin();

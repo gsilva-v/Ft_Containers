@@ -375,9 +375,9 @@ namespace ft
 		**
 		** 
 		*/
-		reverse_iterator rbegin(){
-			return (reverse_iterator(--(this->end())));
-		}
+		// reverse_iterator rbegin(){
+		// 	return (reverse_iterator(--(this->end())));
+		// }
 		/*
 		** @brief Returns a reverse iterator to the first element of the reversed vector.
 		** It corresponds to the last element of the non-reversed vector. 
@@ -407,9 +407,9 @@ namespace ft
 		**
 		** 
 		*/
-		reverse_iterator rend(){
-			return (reverse_iterator(this->begin()));
-		}
+		// reverse_iterator rend(){
+		// 	return (reverse_iterator(this->begin()));
+		// }
 		/*
 		** @brief Returns a reverse iterator to the element following the last element of the reversed vector.
 		** It corresponds to the element preceding the first element of the non-reversed vector.

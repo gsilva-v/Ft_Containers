@@ -64,7 +64,7 @@ namespace ft
 			** 
 			** @return A reference to the element at relative location, that is, base()[-n-1]..
 			*/
-			// operator[]( difference_type n ) const{}
+			// reference operator[]( difference_type n ) const{}
 
 
 			reverse_iterator& operator++() {

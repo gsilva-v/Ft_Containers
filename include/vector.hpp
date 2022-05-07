@@ -27,10 +27,10 @@ namespace ft
 		typedef typename allocator_type::const_reference	const_reference;
 		typedef typename allocator_type::pointer			pointer;
 		typedef typename allocator_type::const_pointer		const_pointer;
-		typedef ft::random_access_iterator<value_type>			iterator;
-		typedef const ft::random_access_iterator<value_type> const_iterator;
-		typedef ft::reverse_iterator<value_type>			reverse_iterator;
-		typedef const ft::reverse_iterator<value_type> 		const_reverse_iterator;
+		typedef ft::random_access_iterator<value_type>		iterator;
+		typedef ft::random_access_iterator<value_type> 		const_iterator;
+		typedef ft::reverse_iterator<iterator>				reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator> 		const_reverse_iterator;
 		
 	// Member functions
 	// Contructors (docs: https://en.cppreference.com/w/cpp/container/vector/vector)
@@ -375,9 +375,9 @@ namespace ft
 		**
 		** 
 		*/
-		// reverse_iterator rbegin(){
-		// 	return (reverse_iterator(--(this->end())));
-		// }
+		reverse_iterator rbegin(){
+			return (reverse_iterator(end()));
+		}
 		/*
 		** @brief Returns a reverse iterator to the first element of the reversed vector.
 		** It corresponds to the last element of the non-reversed vector. 
@@ -390,9 +390,9 @@ namespace ft
 		**
 		** 
 		*/
-		// const_reverse_iterator rbegin() const{
-
-		// }
+		const_reverse_iterator rbegin() const{
+			return (reverse_iterator(end()));
+		}
 
 		// REnd
 		/*
@@ -407,9 +407,9 @@ namespace ft
 		**
 		** 
 		*/
-		// reverse_iterator rend(){
-		// 	return (reverse_iterator(this->begin()));
-		// }
+		reverse_iterator rend(){
+			return (reverse_iterator(begin()));
+		}
 		/*
 		** @brief Returns a reverse iterator to the element following the last element of the reversed vector.
 		** It corresponds to the element preceding the first element of the non-reversed vector.
@@ -422,9 +422,9 @@ namespace ft
 		**
 		** 
 		*/
-		// const_reverse_iterator rend() const{
-
-		// }
+		const_reverse_iterator rend() const{
+			return (reverse_iterator(begin()));
+		}
 
 	// Capacity
 		// Empty

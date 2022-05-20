@@ -43,6 +43,13 @@
 		"sstream": "cpp",
 		"stdexcept": "cpp",
 		"streambuf": "cpp",
-		"typeinfo": "cpp"
+		"typeinfo": "cpp",
+		"cstring": "cpp",
+		"list": "cpp",
+		"complex": "cpp",
+		"ctime": "cpp",
+		"map": "cpp",
+		"set": "cpp",
+		"iomanip": "cpp"
 	}
 }

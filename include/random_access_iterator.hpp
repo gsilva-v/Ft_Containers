@@ -11,7 +11,7 @@ template <class T> struct random_access_iterator
 		typedef T* 								pointer;
 		typedef T& 								reference;
 
-		random_access_iterator(pointer ptr) : _ptr(ptr){}
+		random_access_iterator(pointer ptr = pointer()) : _ptr(ptr){}
 
 		reference operator*() const {
 			return *_ptr;
@@ -73,6 +73,10 @@ template <class T> struct random_access_iterator
 
 		difference_type operator-(random_access_iterator const & rhs) const {
 			return this->_ptr - rhs._ptr;
+		}
+
+		reference operator[]( difference_type n) const {
+			return *(this->_ptr + n);
 		}
 
 		private:

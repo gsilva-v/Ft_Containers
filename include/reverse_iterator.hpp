@@ -18,7 +18,7 @@ namespace ft
 
 			reverse_iterator(): current(){}
 
-			explicit reverse_iterator( iterator_type x ) : current(x){}
+			explicit reverse_iterator( iterator_type x = iterator_type()) : current(x){}
 			
 			template< class U >reverse_iterator( const reverse_iterator<U>& other ): current(other.base()){}
 			
@@ -64,8 +64,9 @@ namespace ft
 			** 
 			** @return A reference to the element at relative location, that is, base()[-n-1]..
 			*/
-			// reference operator[]( difference_type n ) const{}
-
+			reference operator[]( difference_type n) const {
+				return (this->base()[- n - 1]);
+			}
 
 			reverse_iterator& operator++() {
 				this->current--;
@@ -133,19 +134,21 @@ namespace ft
 	** 
 	** @return lhs.base() != rhs.base()
 	*/
-template< class Iterator1, class Iterator2 >bool operator!=( const ft::reverse_iterator<Iterator1>& lhs,
+	template< class Iterator1, class Iterator2 >bool operator!=( const ft::reverse_iterator<Iterator1>& lhs,
         const ft::reverse_iterator<Iterator2>& rhs ){
 		return (lhs.base() != rhs.base());
 	}
-/*
+	/*
 	** @brief Compares the underlying iterators. Inverse comparisons are applied in order to take into account that the iterator order is reversed.
 	** 
 	** @param lhs, rhs	:	iterator adaptors to compare
 	** 
 	** @return lhs.base() < rhs.base()
 	*/
-	// template< class Iterator1, class Iterator2 >bool operator<( const ft::reverse_iterator<Iterator1>& lhs,
-    //     const ft::reverse_iterator<Iterator2>& rhs ){}
+	template< class Iterator1, class Iterator2 >bool operator<( const ft::reverse_iterator<Iterator1>& lhs,
+        const ft::reverse_iterator<Iterator2>& rhs ){
+			return (lhs.base() < rhs.base());
+		}
 
 /*
 	** @brief Compares the underlying iterators. Inverse comparisons are applied in order to take into account that the iterator order is reversed.
@@ -154,8 +157,10 @@ template< class Iterator1, class Iterator2 >bool operator!=( const ft::reverse_i
 	** 
 	** @return lhs.base() <= rhs.base()
 	*/
-	// template< class Iterator1, class Iterator2 >bool operator<=( const ft::reverse_iterator<Iterator1>& lhs,
-    //     const ft::reverse_iterator<Iterator2>& rhs ){}
+	template< class Iterator1, class Iterator2 >bool operator<=( const ft::reverse_iterator<Iterator1>& lhs,
+        const ft::reverse_iterator<Iterator2>& rhs ){
+			return lhs.base() <= rhs.base();
+		}
 
 /*
 	** @brief Compares the underlying iterators. Inverse comparisons are applied in order to take into account that the iterator order is reversed.
@@ -164,8 +169,10 @@ template< class Iterator1, class Iterator2 >bool operator!=( const ft::reverse_i
 	** 
 	** @return lhs.base() > rhs.base()
 	*/
-	// template< class Iterator1, class Iterator2 >bool operator>( const ft::reverse_iterator<Iterator1>& lhs,
-    //     const ft::reverse_iterator<Iterator2>& rhs ){}
+	template< class Iterator1, class Iterator2 >bool operator>( const ft::reverse_iterator<Iterator1>& lhs,
+        const ft::reverse_iterator<Iterator2>& rhs ){
+			return lhs.base() > rhs.base();
+		}
 
 
 /*
@@ -175,8 +182,10 @@ template< class Iterator1, class Iterator2 >bool operator!=( const ft::reverse_i
 	** 
 	** @return lhs.base() >= rhs.base()
 	*/
-	// template< class Iterator1, class Iterator2 >bool operator>=( const ft::reverse_iterator<Iterator1>& lhs,
-    //     const ft::reverse_iterator<Iterator2>& rhs ){}
+	template< class Iterator1, class Iterator2 >bool operator>=( const ft::reverse_iterator<Iterator1>& lhs,
+        const ft::reverse_iterator<Iterator2>& rhs ){
+			return lhs.base() >= rhs.base();
+		}
 
 
 /*
@@ -187,8 +196,10 @@ template< class Iterator1, class Iterator2 >bool operator!=( const ft::reverse_i
 	** 
 	** @return The incremented iterator, that is reverse_iterator<Iter>(it.base() - n)
 	*/
-	// template< class Iter >reverse_iterator<Iter>operator+( typename reverse_iterator<Iter>::difference_type n,
-    //     const reverse_iterator<Iter>& it ){}
+	template< class Iter >reverse_iterator<Iter>operator+( typename reverse_iterator<Iter>::difference_type n,
+        const reverse_iterator<Iter>& it ){
+			return (reverse_iterator<Iter>(it.base() - n));
+		}
 
 
 	/*
@@ -198,8 +209,10 @@ template< class Iterator1, class Iterator2 >bool operator!=( const ft::reverse_i
 	** 
 	** @return rhs.base() - lhs.base()
 	*/
-	// template< class Iterator >typename reverse_iterator<Iterator>::difference_type operator-( const reverse_iterator<Iterator>& lhs,
-    //     const reverse_iterator<Iterator>& rhs ){}
+	template< class Iterator >typename reverse_iterator<Iterator>::difference_type operator-( const reverse_iterator<Iterator>& lhs,
+        const reverse_iterator<Iterator>& rhs ){
+			return (rhs.base() - lhs.base());
+		}
 
 } // namespace ft
 

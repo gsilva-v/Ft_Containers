@@ -8,6 +8,7 @@
 #include "BstAlgorithm.hpp"
 #include "functional.hpp"
 #include "utility.hpp"
+#include "biderectional_iterator.hpp"
 
 namespace ft
 {
@@ -26,6 +27,8 @@ namespace ft
 			typedef const value_type& const_reference;
 			typedef typename Allocator::pointer pointer;
 			typedef typename Allocator::const_pointer const_pointer;
+			typedef	ft::bidirectional_iterator<Key, T> iterator;
+			typedef	const ft::bidirectional_iterator<Key, T> const_iterator;
 
 			class value_compare{
 				protected:
@@ -49,16 +52,19 @@ namespace ft
 			};
 
 			// Constructors
-			map():_alloc(){};
+			map():_alloc(), _node(){};
 			
 			explicit map( const Compare& comp, const Allocator& alloc = Allocator() )
-			: _comp(comp), _alloc(alloc) 
+			: _comp(comp), _alloc(alloc), _node()
 			{
 
 			};
 
 			// template< class InputIt >
 			// 	map( InputIt first, InputIt last, const Compare& comp = Compare(), const Allocator& alloc = Allocator() );
+
+			// Destructor
+			~map(){};
 
 			// Operator=
 			map& operator=( const map& other ){
@@ -69,32 +75,158 @@ namespace ft
 				return *this;
 			};
 			// Get alocator
+			/*
+			** @brief Returns the allocator associated with the container.
+			** 
+			** @param none
+			** 
+			** @return The associated allocator.
+			*/
 			allocator_type get_allocator() const{
 				return (this->_alloc);
 			};
-			// Destructor
-			~map(){};
+		// Element access
+		// AT nao tem no C++98 https://en.cppreference.com/w/cpp/container/map/at
 
 			//Operator[] 
+			/*
+			** @brief Returns a reference to the value that is mapped to a key equivalent to key, performing an insertion if such key does not already exist.
+			** 
+			** @param key the key of the element to find
+			** 
+			** @return Reference to the mapped value of the new element if no element with key key existed. Otherwise a reference to the mapped value of the existing element whose key is equivalent to key.
+			*/
 			T& operator[](const Key& key){
-				value_type *new_pair = this->_alloc.allocate(1);
-				value_type *pair_found;
-				
-				pair_found = this->tree.insert(new_pair);
+				return this->_node.insert(key);
+			};
+			
+		//Iterators
+			// Begin  
+			/*
+			** @brief Returns an iterator to the first element of the map. If the map is empty, the returned iterator will be equal to end().
+			** 
+			** @param none
+			** 
+			** @return Iterator to the first element.
+			*/
+			iterator begin(){
+				return(iterator(this->_node.getLowerNode(&this->_node), this->_node.size));
+			}
+		
+			// Const Begin
+			/*
+			** @brief Returns an iterator to the first element of the map. If the map is empty, the returned iterator will be equal to end().
+			** 
+			** @param none
+			** 
+			** @return Iterator to the first element.
+			*/
+			const_iterator begin() const {
+				return(iterator(this->_node.getLowerNode(&this->_node), this->_node.size));
+			}
 
-				if (pair_found == new_pair){
-					this->_alloc.construct(new_pair);
-					return new_pair->second;
-				}
-				this->_alloc.deallocate(new_pair, 1);
-				return pair_found->second;
+			// End
+			/*
+			** @brief Returns an iterator to the element following the last element of the map. This element acts as a placeholder; attempting to access it results in undefined behavior.
+			** 
+			** @param none
+			** 
+			** @return Iterator to the element following the last element.
+			*/
+			iterator end(){
+				return(iterator(this->_node.getHigherNode(&this->_node), this->_node.size, true));
+			}
+		
+			/*
+			** @brief Returns an iterator to the element following the last element of the map. This element acts as a placeholder; attempting to access it results in undefined behavior.
+			** 
+			** @param none
+			** 
+			** @return Iterator to the element following the last element.
+			*/
+			const_iterator end() const {
+				return(iterator(this->_node.getHigherNode(&this->_node), this->_node.size, true));
+			}
+
+			// RBegin
+
+			// Rend
+
+		// Capacity
+			// Empty
+			/*
+			** @brief Checks if the container has no elements, i.e. whether begin() == end().
+			** 
+			** @param none
+			** 
+			** @return true if the container is empty, false otherwise
+			*/
+			bool empty() const{
+				return this->begin() == this->end();
 			};
 
+			// Size
+			/*
+			** @brief Returns the number of elements in the container, i.e. std::distance(begin(), end()).
+			** 
+			** @param none
+			** 
+			** @return The number of elements in the container.
+			*/
+			size_type size() const {
+				return this->_node.size;
+			};
+
+			// Max Size
+			/*
+			** @brief Returns the maximum number of elements the container is able to hold due to system or library implementation limitations, i.e. std::distance(begin(), end()) for the largest container.
+			** 
+			** @param none
+			** 
+			** @return Maximum number of elements.
+			*/
+			size_type max_size() const {
+				return this->_node.maxSize();
+			};
+
+		// Modifiers
+			// Clear
+			/*
+			** @brief Erases all elements from the container. After this call, size() returns zero.
+			** 
+			** @param none
+			** 
+			** @return none
+			*/
+			void clear(){};
+
+			// Erase
+			/*
+			** @brief Erases all elements from the container. After this call, size() returns zero.
+			** 
+			** @param none
+			** 
+			** @return none
+			*/
+			void erase( iterator pos ){};
+
+
+			// Swap
+			/*
+			** @brief Erases all elements from the container. After this call, size() returns zero.
+			** 
+			** @param none
+			** 
+			** @return none
+			*/
+			void swap( map& other ){
+				map
+			};
 
 		protected:
 			key_compare _comp;
 			allocator_type _alloc;
-			ft::RedBlackTree<value_type *> tree;
+			ft::BstNode<Key, T> _node;
 	};
 	
 } // namespace ft

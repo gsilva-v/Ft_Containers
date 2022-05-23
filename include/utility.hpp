@@ -22,7 +22,7 @@ namespace ft
 			** 
 			** 
 			*/
-			pair( const T1& x, const T2& y ){this->first = x; this->second = y;};//(2)
+			pair( const T1& x, const T2& y ) : first(x), second(y){};//(2)
 
 			/*
 			** @brief Initializes first with p.first and second with p.second.

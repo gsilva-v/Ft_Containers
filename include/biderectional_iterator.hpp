@@ -13,63 +13,91 @@ template <typename Key, typename T> struct bidirectional_iterator
 		typedef  value_type*					pointer;
 		typedef  value_type& 					reference;
 
+		bidirectional_iterator() 
+		: _node(NULL), _firstNode(NULL), _lastNode(NULL), _end(false), _size(0){
+			this->_pair = new ft::pair<const Key, T> (_size, T());
+		};
+
 		bidirectional_iterator(ft::BstNode<Key, T> *node, int size, bool end = false) 
 		: _node(node){
-			this->end = end;
-			this->size = size;
-			this->pair = new ft::pair<const Key, T> (size, T());
+			this->_end = end;
+			this->_size = size;
+			this->_pair = new ft::pair<const Key, T> (size, T());
 
 			if (node){
-				while(node->parent)
+				while(node && node->parent)
 					node = node->parent;
 				this->_firstNode = node->getLowerNode(node);
 				this->_lastNode = node->getHigherNode(node);
 			}
+			if (end)
+				this->_node = NULL;
 		};
 
+		template <typename k, typename t>
+		bidirectional_iterator(bidirectional_iterator<k, t> &other) 
+		: _node(other._node){
+			this->_pair = new ft::pair<const k, t> (_size, t());
+			this->_firstNode = other._firstNode;
+			this->_lastNode = other._lastNode;
+			this->_end = other._end;
+			this->_size = other._size;
+		};
+
+		template <typename k, typename t>
+		bidirectional_iterator<k, t> &operator=(bidirectional_iterator<k, t> &other) 
+		{
+			this->_node = other._node;
+			this->_firstNode = other._firstNode;
+			this->_lastNode = other._lastNode;
+			this->_end = other._end;
+			this->_size = other._size;
+			return *this;
+		};
+
+
+
+
 		~bidirectional_iterator(){
-			if (this->pair)
-				delete pair;
+			delete _pair;
 		};
 
 		ft::pair<const Key, T> *operator*()  {
-			if (this->end)
-				return this->pair;
+			if (this->_end)
+				return this->_pair;
 			return _node->data;
 		};
 
     	ft::pair<const Key, T> *operator->() {
-			if(this->end)
-				return this->pair;
+			if(this->_end)
+				return this->_pair;
 			return _node->data;
 		};
 
 		bidirectional_iterator& operator++() {
-			if (this->_node == NULL){
-				return *this;
-			}
-			if (this->end){
-				this->end = false;
+			if (this->_end){
+				this->_end = false;
 				this->_node = this->_lastNode;
 			}
-			else if (_node->right) {
+			else if (this->_node->right) {
 				this->_node = this->_node->getLowerNode(this->_node->right);
 			}
-			else if (this->_node->parent && _node != _lastNode){
-				_coming_from = this->_node->getDirection();
+			else if (this->_node->parent && this->_node != this->_lastNode){
+				this->_coming_from = this->_node->getDirection();
 				this->_node = _node->parent;
-				if (_coming_from == ft::Direction::Right)	
+				if (this->_coming_from == ft::Direction::Right)	
 					this->_node = this->_node->parent;
 			}
 			else {
-				this->end = true;
+				this->_end = true;
+				this->_node = NULL;
 			}
 		
 			return *this;
 		};
 
 		bidirectional_iterator operator++(int) {
-			bidirectional_iterator it(this->_node, this->size);
+			bidirectional_iterator it(this->_node, this->_size);
 			++(*this);
 			return it;
 		};
@@ -78,12 +106,12 @@ template <typename Key, typename T> struct bidirectional_iterator
 			if (this->_node == NULL){
 				return *this;
 			}
-			if (this->end){
-				this->end = false;
+			if (this->_end){
+				this->_end = false;
 				this->_node = this->_lastNode;
 			}
 			if (_node == this->_firstNode){
-				this->end = true;
+				this->_end = true;
 				this->_coming_from = ft::Direction::None;
 			}
 			else if (_node != this->_firstNode && _node->left){
@@ -156,9 +184,9 @@ template <typename Key, typename T> struct bidirectional_iterator
 			ft::BstNode<Key, T>		*_lastNode;			
 			ft::BstNode<Key, T>		*_firstNode;			
 			ft::Direction			_coming_from;
-			bool					end;
-			int						size;
-			ft::pair<const Key, T>	*pair;
+			bool					_end;
+			int						_size;
+			ft::pair<const Key, T>	*_pair;
 
 	};
 };

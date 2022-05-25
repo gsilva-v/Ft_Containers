@@ -1,9 +1,10 @@
-#if !defined(BSTALGORITHM_HPP)
-#define BSTALGORITHM_HPP
+#pragma once
 
+#include "BstUtils.hpp"
 #include "utility.hpp"
 #include "functional.hpp"
 #include <memory>
+
 
 namespace ft
 {
@@ -53,13 +54,11 @@ namespace ft
 			this->left = NULL;
 			this->parent = NULL;
 			this->data = NULL;
-			this->size = 1;
+			this->size = 0;
 			this->color = Color::Black;
 		};
 
 		BstNode(const Key &key , const Allocator& alloc = Allocator()): _alloc(alloc){
-			BstNode<Key, T> *new_node = new BstNode<Key, T>;
-
 			this->right = NULL;
 			this->left = NULL;
 			this->parent = NULL;
@@ -69,11 +68,21 @@ namespace ft
 			this->color = Color::Black;
 		};
 
+		BstNode(value_type &value , const Allocator& alloc = Allocator()): _alloc(alloc){
+			this->right = NULL;
+			this->left = NULL;
+			this->parent = NULL;
+			this->data = this->_alloc.allocate(1);
+			this->size = 1;
+			this->_alloc.construct(this->data, value);
+			this->color = Color::Black;
+		};
+
 
 		~BstNode(){
 			if (this->data){
 				this->_alloc.destroy(this->data);
-				this->_alloc.deallocate(this->data, this->size);
+				this->_alloc.deallocate(this->data, 1);
 			}
 		};
 		
@@ -87,6 +96,22 @@ namespace ft
 
 			while (init)
 			{
+				if (init->getDirection() == ft::Direction::Right){
+					if (node->data->first < init->parent->data->first){
+						init = init->parent;
+						continue ;
+					} 
+					else if (node->data->first == init->parent->data->first)
+						return init->parent;
+				}
+				else if (init->getDirection() == ft::Direction::Left){
+					if (node->data->first > init->parent->data->first){
+						init = init->parent;
+						continue ;
+					} 
+					else if (node->data->first == init->parent->data->first)
+						return init->parent;
+				}
 				if (node->data->first < init->data->first){
 					if (!init->left){
 						node->parent = init;
@@ -96,7 +121,7 @@ namespace ft
 						init = init->left;
 				}
 				else if (node->data->first > init->data->first){
-					if (!init->right){
+					if (!init->right ){
 						node->parent = init;
 						init->right = node;
 						break ;
@@ -106,13 +131,14 @@ namespace ft
 				else
 					return init;
 			}
-					this->size += 1;
+			this->size += 1;
 			return node;
 		};
 
-		virtual T &insert(const Key &key){
+		T &insert(const Key &key){
 			if (this->data == NULL){
 				this->data = this->_alloc.allocate(1);
+				this->size += 1;
 				this->_alloc.construct(this->data, ft::pair<const Key, T>(key,T()));
 				return this->data->second;
 			}
@@ -123,6 +149,24 @@ namespace ft
 			if (!new_node->parent)
 				delete new_node;	
 			return found->data->second;
+		};
+
+		bool insert(const value_type &value){
+			if (this->data == NULL){
+				this->data = this->_alloc.allocate(1);
+				this->size += 1;
+				this->_alloc.construct(this->data, value);
+				return true;
+			}
+			
+			BstNode<Key, T> *new_node = new BstNode<Key, T>(value);
+			BstNode<Key, T> *found;
+			found = findSlot(new_node);
+			if (!new_node->parent){
+				delete new_node;
+				return false;
+			}
+			return true;
 		};
 
 		
@@ -148,54 +192,74 @@ namespace ft
 		}
 
 		void	swapNode(BstNode<Key, T> *node, BstNode<Key, T> *sub){
-			
 			if (!node)
 					return;
 
 			if (sub){
-				sub->parent = node->parent;
-				if (node->left != sub && node->left){
-					sub->left = node->left;
-					node->left->parent = sub;
-				}
-				if (node->right != sub && node->right){
-					sub->right = node->right;
-					node->right->parent = sub;
-				}
+				node->left = sub->left;
+				if (sub->left)
+					sub->left->parent = node->parent;
+				node->right = sub->right;
+				if (sub->right)
+					sub->right->parent = node;
+				node->parent = sub->parent->parent;
+				this->_alloc.destroy(node->data);
+				this->_alloc.deallocate(node->data, 1);
+				node->data = sub->data;
 			}
+			else {
+				node->left = NULL;
+				node->right = NULL;
+				node->parent = NULL;
+				this->_alloc.destroy(node->data);
+				this->_alloc.deallocate(node->data, 1);
+				node->data = NULL;
+			}
+			// 	if (node->right != sub && node->right){
+			// 		sub->right = node->right;
+			// 		node->right->parent = sub;
+			// 	}
+			// }
 		
-			if (node && node->parent){
-				if (node->parent->left == node)
-					node->parent->left = sub;
-				else
-					node->parent->right = sub;
-			}		
-			else{
-				this->left = sub->left;
-				this->right = sub->right;
-				this->data = sub->data;
-				delete sub;
-
-			}
+			// if (node->parent){
+			// 	if (node->parent->left == node)
+			// 		node->parent->left = sub;
+			// 	else
+			// 		node->parent->right = sub;
+			// }		
+			// else{
+			// 	this->left = sub->left;
+			// 	this->right = sub->right;
+			// 	this->data = sub->data;
+			// 	delete sub;
+			// }
 		};
 
-		virtual void deleteNode(BstNode<Key, T> *node){
+		void deleteNode(BstNode<Key, T> *node){
+			// std::cout << "debug node \nright: " << *(&node->right) << std::endl;
+			// std::cout << "left: " << *(&node->left->data->first) << std::endl;
+			// std::cout << "parent: " << *(&node->parent->data->first) << std::endl;
+			// std::cout << "node: " << *(&node->data->first) << std::endl;
 			if (!node->left && !node->right){//se nao houver nenhum filho
 				this->swapNode(node, NULL);
 			} else if (node->left && node->right){ //caso tenham 2 filhos
 				BstNode<Key, T> *higher = this->getHigherNode(node->left);
 				this->swapNode(higher, higher->left);
+				higher->left = NULL;
+				higher->right = NULL;
 				this->swapNode(node, higher);
 			} else if (node->left || node->right){ //caso tenha 1 filho
 				if (node->left){
 					this->swapNode(node, node->left);
+					// std::cout << "debug node 2 \nright: " << *(&node->right) << std::endl;
+					// std::cout << "left: " << *(&node->left) << std::endl;
+					// std::cout << "parent: " << *(&node->parent->data->first) << std::endl;
+					// std::cout << "node: " << *(&node->data->first) << std::endl;
 				} else {
 					this->swapNode(node, node->right);
 				}
 			}
-			delete node;
 		};
-
 
 		BstNode<Key, T> *find(const Key key){
 			BstNode<Key, T> *init = this;
@@ -212,14 +276,19 @@ namespace ft
 			return NULL;
 		};
 
-		void remove(const Key key){
+		bool remove(const Key key){
 			BstNode<Key, T> *node = this->find(key);
-
-			if (node)
+		
+			if (node){
 				this->deleteNode(node);
+				this->size -= 1;
+				return true;	
+			}
+			return false;	
 		};
-	};
+	};  // BstNode
 
-};
 
-#endif // BSTALGORITHM_HPP
+
+
+}

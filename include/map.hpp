@@ -5,7 +5,7 @@
 #include <memory>
 #include <cstddef>
 #include <exception>
-#include "BstAlgorithm.hpp"
+#include "BstUtils.hpp"
 #include "functional.hpp"
 #include "utility.hpp"
 #include "biderectional_iterator.hpp"
@@ -97,7 +97,10 @@ namespace ft
 			** @return Reference to the mapped value of the new element if no element with key key existed. Otherwise a reference to the mapped value of the existing element whose key is equivalent to key.
 			*/
 			T& operator[](const Key& key){
-				return this->_node.insert(key);
+				if (!this->_node){
+					this->_node = new ft::BstNode<Key, T>(key, this->_alloc);
+				}
+				return this->_node->insert(key);
 			};
 			
 		//Iterators
@@ -110,7 +113,7 @@ namespace ft
 			** @return Iterator to the first element.
 			*/
 			iterator begin(){
-				return(iterator(this->_node.getLowerNode(&this->_node), this->_node.size));
+				return(iterator(this->_node ? this->_node->getLowerNode(this->_node) : NULL, this->_node  ? this->_node->size : 0));
 			}
 		
 			// Const Begin
@@ -122,7 +125,7 @@ namespace ft
 			** @return Iterator to the first element.
 			*/
 			const_iterator begin() const {
-				return(iterator(this->_node.getLowerNode(&this->_node), this->_node.size));
+				return(iterator(this->_node ? this->_node->getLowerNode(this->_node) : NULL, this->_node ? this->_node->size : 0));
 			}
 
 			// End
@@ -134,7 +137,7 @@ namespace ft
 			** @return Iterator to the element following the last element.
 			*/
 			iterator end(){
-				return(iterator(this->_node.getHigherNode(&this->_node), this->_node.size, true));
+				return(iterator(this->_node ? this->_node->getHigherNode(this->_node ): NULL,this->_node ? this->_node->size : 0, true));
 			}
 		
 			/*
@@ -145,7 +148,7 @@ namespace ft
 			** @return Iterator to the element following the last element.
 			*/
 			const_iterator end() const {
-				return(iterator(this->_node.getHigherNode(&this->_node), this->_node.size, true));
+				return(iterator(this->_node ? this->_node->getHigherNode(this->_node ): NULL,this->_node ? this->_node->size : 0, true));
 			}
 
 			// RBegin
@@ -174,7 +177,7 @@ namespace ft
 			** @return The number of elements in the container.
 			*/
 			size_type size() const {
-				return this->_node.size;
+				return this->_node->size;
 			};
 
 			// Max Size
@@ -186,7 +189,7 @@ namespace ft
 			** @return Maximum number of elements.
 			*/
 			size_type max_size() const {
-				return this->_node.maxSize();
+				return this->_alloc.max_size();
 			};
 
 		// Modifiers
@@ -198,7 +201,9 @@ namespace ft
 			** 
 			** @return none
 			*/
-			void clear(){};
+			void clear(){
+				this->erase(this->begin(), this->end());
+			};
 
 			// Erase
 			/*
@@ -208,26 +213,275 @@ namespace ft
 			** 
 			** @return none
 			*/
-			void erase( iterator pos ){};
+			void erase(iterator pos){
+				this->erase(pos->first);
+			};
+			
+			/*
+			** @brief  Removes the elements in the range [first; last), which must be a valid range in *this
+			** 
+			** @param first, last: range of elements to remove
+			** 
+			** @return none
+			*/
+			void erase( iterator first, iterator last ){
+				iterator holder;
+				for (; first != last;){
+					holder = first;
+					first++;
+					this->erase(holder->first);			
+				}
+			};
 
+			/*
+			** @brief Removes the element (if one exists) with the key equivalent to key.
+			** 
+			** @param key key value of the elements to remove
+			** 
+			** @return Number of elements removed (0 or 1)
+			*/
+			size_type erase( const Key& key ){
+				return (ft::removeNode(key, &this->_node)) ? 1 : 0;
+			};
 
 			// Swap
 			/*
-			** @brief Erases all elements from the container. After this call, size() returns zero.
+			** @brief Exchanges the contents of the container with those of other. Does not invoke any move, copy, or swap operations on individual elements.
 			** 
-			** @param none
+			** @param other container to exchange the contents with
 			** 
 			** @return none
 			*/
 			void swap( map& other ){
-				map
+				ft::BstNode<Key, T> holder = this->_node;
+
+				this->_node = other._node;
+
+				other._node = holder;
+			};
+
+			// Insert 
+			/*
+			** @brief  Inserts value.
+			** 
+			** @param value	element value to insert
+			** 
+			** @return Returns a pair consisting of an iterator to the inserted element (or to the element that prevented the insertion) and a bool denoting whether the insertion took place.
+			*/
+			ft::pair<iterator, bool> insert( const value_type& value ){
+				bool created = this->_node->insert(value);
+				ft::BstNode<Key, T> *cNode = this->_node->find(value.first);
+				return ft::pair<iterator, bool>(iterator(cNode->data->first, this->_node->size), created);
+			};
+			
+			/*
+			** @brief Inserts value in the position as close as possible, just prior(since C++11), to hint.
+			** 
+			** @param iterator, used as a suggestion as to where to start the search
+			** @param value	element value to insert
+			** 
+			** @return Returns a pair consisting of an iterator to the inserted element (or to the element that prevented the insertion) and a bool denoting whether the insertion took place.
+			*/
+			iterator insert( iterator hint, const value_type& value ){
+				this->_node->find(hint->first)->insert(value);
+				return iterator(this->_node->find(value->first), this->_node->size);
+			};
+			
+			/*
+			** @brief  Inserts elements from range [first, last). If multiple elements in the range have keys that compare equivalent, it is unspecified which element is inserted
+			** 
+			** @param first, last:	range of elements to insert
+			** 
+			** @return none
+			*/
+			template< class InputIt >
+			void insert( InputIt first, InputIt last ){
+				for (; first != last; first++){
+					this->_node->insert(first->first) = first->second;
+				}				
+			};
+
+
+		// Lookup
+			// Count 	
+			/*
+			** @brief  Returns the number of elements with key that compares equivalent to the specified argument, which is either 1 or 0 since this container does not allow duplicates.
+			** 
+			** @param key key value of the elements to count
+			** 
+			** @return Returns the number of elements with key key.
+			*/
+			size_type count( const Key& key ) const {
+				return this->_node->find(key) ? 1 : 0;
+			};
+
+			// Find
+			/*
+			** @brief  Finds an element with key equivalent to key.
+			** 
+			** @param key key value of the element to search for
+			** 
+			** @return Iterator to an element with key equivalent to key. If no such element is found, past-the-end (see end()) iterator is returned.
+			*/
+			iterator find(const Key& key){
+				if (!this->_node)
+					return this->end();
+				ft::BstNode<Key, T> *found = this->_node->find(key);
+				if (!found)
+					return this->end();
+				return iterator(found->first, this->_node->size);
+			};
+			
+			/*
+			** @brief  Finds an element with key equivalent to key.
+			** 
+			** @param key key value of the element to search for
+			** 
+			** @return Iterator to an element with key equivalent to key. If no such element is found, past-the-end (see end()) iterator is returned.
+			*/
+			// const_iterator find(const Key& key){
+			// 	if (!this->_node)
+			// 		return this->end();
+			// 	ft::BstNode<Key, T> *found = this->_node->find(key);
+			// 	if (!found)
+			// 		return this->end();
+			// 	return const_iterator(found->first, this->_node->size);
+			// };
+
+			// Upper Bound
+			/*
+			** @brief  Returns an iterator pointing to the first element that is greater than key.
+			** 
+			** @param key key value to compare the elements to
+			** 
+			** @return Iterator pointing to the first element that is greater than key. If no such element is found, past-the-end (see end()) iterator is returned.
+			*/
+			iterator upper_bound( const Key& key ){
+				iterator bgn = this->begin();
+				iterator end = this->end();
+
+				for (; bgn != end; bgn++){
+					if (_comp(key_comp(bgn->first, key)))
+						break ;
+				}
+				return bgn;
+			};
+
+			/*
+			** @brief  Returns an iterator pointing to the first element that is greater than key.
+			** 
+			** @param key key value to compare the elements to
+			** 
+			** @return Iterator pointing to the first element that is greater than key. If no such element is found, past-the-end (see end()) iterator is returned.
+			*/
+			// const_iterator upper_bound( const Key& key ){
+			// 	const_iterator bgn = this->begin();
+			// 	const_iterator end = this->end();
+
+			// 	for (; bgn != end; bgn++){
+			// 		if (_comp(key_comp(bgn->first, key)))
+			// 			break ;
+			// 	}
+			// 	return bgn;
+			// };
+			
+			// Lower Bounds
+			/*
+			** @brief  Returns an iterator pointing to the first element that is not less than (i.e. greater or equal to) key.
+			** 
+			** @param key key value to compare the elements to
+			** 
+			** @return Iterator pointing to the first element that is not less than key. If no such element is found, a past-the-end iterator (see end()) is returned.
+			*/
+			iterator lower_bound( const Key& key ){
+				iterator bgn = this->begin();
+				iterator end = this->end();
+
+				for (; bgn != end; bgn++){
+					if (!_comp(key_comp(bgn->first, key)))
+						break ;
+				}
+				return bgn;
+			};
+			
+			/*
+			** @brief  Returns an iterator pointing to the first element that is not less than (i.e. greater or equal to) key.
+			** 
+			** @param key key value to compare the elements to
+			** 
+			** @return Iterator pointing to the first element that is not less than key. If no such element is found, a past-the-end iterator (see end()) is returned.
+			*/
+			// const_iterator lower_bound( const Key& key ){
+			// 	const_iterator bgn = this->begin();
+			// 	const_iterator end = this->end();
+
+			// 	for (; bgn != end; bgn++){
+			// 		if (!_comp(key_comp(bgn->first, key)))
+			// 			break ;
+			// 	}
+			// 	return bgn;
+			// };
+
+			// Equal Range
+			/*
+			** @brief  Returns a range containing all elements with the given key in the container.
+			** The range is defined by two iterators, one pointing to the first element that is not less than key and another pointing to the first element greater than key.
+			** Alternatively, the first iterator may be obtained with lower_bound(), and the second with upper_bound().
+			** 
+			** @param key key value to compare the elements to
+			** 
+			** @return std::pair containing a pair of iterators defining the wanted range: the first pointing to the first element that is not less than key and the second pointing to the first element greater than key.
+			*/
+			ft::pair<iterator,iterator> equal_range(const Key& key){
+				return ft::pair<Key, T>(this->lower_bound(key), this->upper_bound(key));
+			};
+		
+			/*
+			** @brief  Returns a range containing all elements with the given key in the container.
+			** The range is defined by two iterators, one pointing to the first element that is not less than key and another pointing to the first element greater than key.
+			** Alternatively, the first iterator may be obtained with lower_bound(), and the second with upper_bound().
+			** 
+			** @param key key value to compare the elements to
+			** 
+			** @return std::pair containing a pair of iterators defining the wanted range: the first pointing to the first element that is not less than key and the second pointing to the first element greater than key.
+			*/
+			ft::pair<const_iterator,const_iterator> equal_range(const Key& key) const {
+				return ft::pair<Key, T>(this->lower_bound(key), this->upper_bound(key));
+			};
+
+		// Observers
+			// Key Comp
+			/*
+			** @brief Return a copy of the key comparison object.
+			**
+			** @param the key comparison object.
+			*/
+			key_compare key_comp() const {
+				return (key_compare());
+			};
+
+			// Value Comp
+			/*
+			** @brief Return a copy of the value comparison object.
+			**
+			** @param the value comparison object.
+			*/
+			value_compare value_comp() const {
+				return (value_compare(key_compare()));
 			};
 
 		protected:
 			key_compare _comp;
 			allocator_type _alloc;
-			ft::BstNode<Key, T> _node;
+			ft::BstNode<Key, T> *_node;
 	};
+	template< class Key, class T, class Compare, class Alloc >
+	void swap( ft::map<Key,T,Compare,Alloc>& lhs,
+           		ft::map<Key,T,Compare,Alloc>& rhs ){
+					   lhs.swap(rhs);
+				   };
+	
+
 	
 } // namespace ft
 

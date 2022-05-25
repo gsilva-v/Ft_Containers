@@ -4,51 +4,46 @@
 
 int main(int argc, char const *argv[])
 {
-	std::map<int, int> stdMap;
-
-	stdMap[3] = 30;
-	stdMap[1] = 10;
-	stdMap[9] = 90;
-	stdMap[7] = 70;
-	stdMap[5] = 50;
-	stdMap[8] = 80;
-	stdMap[4] = 40;
-	stdMap[6] = 60;
-	stdMap[0] = 0;
-	stdMap[2] = 20;
-
-	std::cout << stdMap.max_size() << std::endl;
-
-	// std::map<int, int>::iterator itStd = stdMap.end();
-	// 	itStd--;
-	// for(; itStd != stdMap.begin(); itStd--){
-	// 	std::cout << itStd->first <<" "<< itStd->second << std::endl;
-	// }		
+		
 
 	ft::map<int, int> ftMap;
 
-	ftMap[3] = 30;
 	ftMap[1] = 10;
+	ftMap[2] = 20;
+	ftMap[3] = 30;
+	ftMap[8] = 80;
 	ftMap[9] = 90;
 	ftMap[7] = 70;
-	ftMap[5] = 50;
-	ftMap[8] = 80;
 	ftMap[4] = 40;
 	ftMap[6] = 60;
 	ftMap[0] = 0;
 	ftMap[2] = 20;
 
+	ft::map<int, int>::iterator itft = ftMap.begin();
+	std::cout <<"----------------" << std::endl;
+	std::cout <<"  initial list" << std::endl;
+	std::cout <<"----------------" << std::endl;
 
-	std::cout << ftMap.max_size() << std::endl;
+	for(; itft != ftMap.end(); itft++){
+		std::cout << itft->first << " "<< itft->second << std::endl;
+	}
+
+	std::cout <<"----------------" << std::endl;
+	std::cout <<"   erase (key)" << std::endl;
+	std::cout <<"----------------" << std::endl;
+
+	ftMap.erase(7);
+	std::cout <<"|   erase (7)  |" << std::endl;
+
+	std::cout <<"----------------" << std::endl;
+	std::cout <<"     result" << std::endl;
+	std::cout <<"----------------" << std::endl;
+	itft = ftMap.begin();
+	for(; itft != ftMap.end(); itft++){
+		std::cout << itft->first <<" "<< itft->second << std::endl;
+	}		
 
 
-	// ft::map<int, int>::iterator it = ftMap.begin();
-
-	
-	
-
-	// for(; it != ftMap.begin(); it--){
-	// }
 
 	return 0;
 }

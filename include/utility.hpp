@@ -30,8 +30,7 @@ namespace ft
 			** 
 			*/
 			template< class U1, class U2 >
-				pair( const pair<U1, U2>& p ){//(5)
-					this->first = p.first;
+				pair( const pair<U1, U2>& p ) : first(p.first){//(5)
 					this->second = p.second;
 				};
 		

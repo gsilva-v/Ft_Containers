@@ -9,6 +9,7 @@
 #include "functional.hpp"
 #include "utility.hpp"
 #include "biderectional_iterator.hpp"
+#include "reverse_iterator.hpp"
 
 namespace ft
 {
@@ -16,19 +17,21 @@ namespace ft
 	class map
 	{
 		public:
-			typedef Key key_type;
-			typedef T mapped_type;			
-			typedef ft::pair<const Key, T> value_type;
-			typedef std::size_t size_type;
-			typedef std::ptrdiff_t difference_type;
-			typedef Compare key_compare;
-			typedef Allocator allocator_type;
-			typedef value_type& reference;
-			typedef const value_type& const_reference;
-			typedef typename Allocator::pointer pointer;
-			typedef typename Allocator::const_pointer const_pointer;
-			typedef	ft::bidirectional_iterator<Key, T> iterator;
-			typedef	const ft::bidirectional_iterator<Key, T> const_iterator;
+			typedef Key											key_type;
+			typedef T											mapped_type;			
+			typedef ft::pair<const Key, T>						value_type;
+			typedef std::size_t									size_type;
+			typedef std::ptrdiff_t								difference_type;
+			typedef Compare										key_compare;
+			typedef Allocator									allocator_type;
+			typedef value_type&									reference;
+			typedef const value_type&							const_reference;
+			typedef typename Allocator::pointer					pointer;
+			typedef typename Allocator::const_pointer			const_pointer;
+			typedef	ft::bidirectional_iterator<Key, T>			iterator;
+			typedef	const ft::bidirectional_iterator<Key, T>	const_iterator;
+			typedef ft::reverse_iterator<iterator> 				reverse_iterator;
+			typedef const ft::reverse_iterator<iterator> 		const_reverse_iterator;
 
 			class value_compare{
 				protected:
@@ -64,7 +67,9 @@ namespace ft
 			// 	map( InputIt first, InputIt last, const Compare& comp = Compare(), const Allocator& alloc = Allocator() );
 
 			// Destructor
-			~map(){};
+			~map(){
+				this->clear();
+			};
 
 			// Operator=
 			map& operator=( const map& other ){
@@ -148,12 +153,56 @@ namespace ft
 			** @return Iterator to the element following the last element.
 			*/
 			const_iterator end() const {
-				return(iterator(this->_node ? this->_node->getHigherNode(this->_node ): NULL,this->_node ? this->_node->size : 0, true));
+				return(iterator(this->_node ? this->_node->getHigherNode(this->_node ): NULL, this->_node ? this->_node->size : 0, true));
 			}
 
 			// RBegin
+			/*
+			** @brief Returns a reverse iterator to the first element of the reversed map. It corresponds to the last element of the non-reversed map. If the map is empty, the returned iterator is equal to rend().
+			** 
+			** @param none
+			** 
+			** @return Reverse iterator to the first element.
+			*/
+			reverse_iterator rbegin(){
+				if (this->empty())
+					return this->rend();
+				return reverse_iterator((this->end()));
+			};
+			/*
+			** @brief Returns a reverse iterator to the first element of the reversed map. It corresponds to the last element of the non-reversed map. If the map is empty, the returned iterator is equal to rend().
+			** 
+			** @param none
+			** 
+			** @return Reverse iterator to the first element.
+			*/
+			const_reverse_iterator rbegin() const {
+				if (this->empty())
+					return this->rend();
+				return const_reverse_iterator((this->end()));
+			};
 
 			// Rend
+			/*
+			** @brief Returns a reverse iterator to the element following the last element of the reversed map. It corresponds to the element preceding the first element of the non-reversed map. This element acts as a placeholder, attempting to access it results in undefined behavior.
+			** 
+			** @param none
+			** 
+			** @return Reverse iterator to the element following the last element.
+			*/
+			reverse_iterator rend(){
+				return reverse_iterator((this->begin()));
+			};
+			/*
+			** @brief Returns a reverse iterator to the element following the last element of the reversed map. It corresponds to the element preceding the first element of the non-reversed map. This element acts as a placeholder, attempting to access it results in undefined behavior.
+			** 
+			** @param none
+			** 
+			** @return Reverse iterator to the element following the last element.
+			*/
+			const_reverse_iterator rend() const{
+				return const_reverse_iterator((this->begin()));
+			};
 
 		// Capacity
 			// Empty
@@ -339,14 +388,14 @@ namespace ft
 			** 
 			** @return Iterator to an element with key equivalent to key. If no such element is found, past-the-end (see end()) iterator is returned.
 			*/
-			// const_iterator find(const Key& key){
-			// 	if (!this->_node)
-			// 		return this->end();
-			// 	ft::BstNode<Key, T> *found = this->_node->find(key);
-			// 	if (!found)
-			// 		return this->end();
-			// 	return const_iterator(found->first, this->_node->size);
-			// };
+			const_iterator find(const Key& key) const {
+				if (!this->_node)
+					return this->end();
+				ft::BstNode<Key, T> *found = this->_node->find(key);
+				if (!found)
+					return this->end();
+				return const_iterator(found->first, this->_node->size);
+			};
 
 			// Upper Bound
 			/*
@@ -361,7 +410,7 @@ namespace ft
 				iterator end = this->end();
 
 				for (; bgn != end; bgn++){
-					if (_comp(key_comp(bgn->first, key)))
+					if (_comp(key, bgn->first))
 						break ;
 				}
 				return bgn;
@@ -374,16 +423,16 @@ namespace ft
 			** 
 			** @return Iterator pointing to the first element that is greater than key. If no such element is found, past-the-end (see end()) iterator is returned.
 			*/
-			// const_iterator upper_bound( const Key& key ){
-			// 	const_iterator bgn = this->begin();
-			// 	const_iterator end = this->end();
+			const_iterator upper_bound( const Key& key ) const {
+				const_iterator bgn = this->begin();
+				const_iterator end = this->end();
 
-			// 	for (; bgn != end; bgn++){
-			// 		if (_comp(key_comp(bgn->first, key)))
-			// 			break ;
-			// 	}
-			// 	return bgn;
-			// };
+				for (; bgn != end; bgn++){
+					if (_comp(key, bgn->first))
+						break ;
+				}
+				return bgn;
+			};
 			
 			// Lower Bounds
 			/*
@@ -398,7 +447,7 @@ namespace ft
 				iterator end = this->end();
 
 				for (; bgn != end; bgn++){
-					if (!_comp(key_comp(bgn->first, key)))
+					if (!_comp(bgn->first, key))
 						break ;
 				}
 				return bgn;
@@ -411,16 +460,16 @@ namespace ft
 			** 
 			** @return Iterator pointing to the first element that is not less than key. If no such element is found, a past-the-end iterator (see end()) is returned.
 			*/
-			// const_iterator lower_bound( const Key& key ){
-			// 	const_iterator bgn = this->begin();
-			// 	const_iterator end = this->end();
+				const_iterator lower_bound( const Key& key ) const{
+				const_iterator bgn = this->begin();
+				const_iterator end = this->end();
 
-			// 	for (; bgn != end; bgn++){
-			// 		if (!_comp(key_comp(bgn->first, key)))
-			// 			break ;
-			// 	}
-			// 	return bgn;
-			// };
+				for (; bgn != end; bgn++){
+					if (!_comp(bgn->first, key))
+						break ;
+				}
+				return bgn;
+			};
 
 			// Equal Range
 			/*
@@ -433,7 +482,7 @@ namespace ft
 			** @return std::pair containing a pair of iterators defining the wanted range: the first pointing to the first element that is not less than key and the second pointing to the first element greater than key.
 			*/
 			ft::pair<iterator,iterator> equal_range(const Key& key){
-				return ft::pair<Key, T>(this->lower_bound(key), this->upper_bound(key));
+				return ft::make_pair(this->lower_bound(key), this->upper_bound(key));
 			};
 		
 			/*
@@ -446,7 +495,7 @@ namespace ft
 			** @return std::pair containing a pair of iterators defining the wanted range: the first pointing to the first element that is not less than key and the second pointing to the first element greater than key.
 			*/
 			ft::pair<const_iterator,const_iterator> equal_range(const Key& key) const {
-				return ft::pair<Key, T>(this->lower_bound(key), this->upper_bound(key));
+				return ft::make_pair(this->lower_bound(key), this->upper_bound(key));
 			};
 
 		// Observers

@@ -50,11 +50,11 @@ namespace ft
 			}
 
 			reference operator*() const {
-				return (*current);
+				return *current;
 			}
 
 			pointer operator->() {
-				return current;
+				return &(*current);
 			}
 
 			/*

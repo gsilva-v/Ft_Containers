@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BstUtils.hpp"
+// #include "BstUtils.hpp"
 #include "utility.hpp"
 #include "functional.hpp"
 #include <memory>
@@ -135,7 +135,69 @@ namespace ft
 			return node;
 		};
 
-		T &insert(const Key &key){
+		BstNode<Key, T> *getSibling(){
+			if (!this->parent)
+				return NULL;
+			if(this->parent->left != this)
+				return this->parent->left;
+			return this->parent->right;
+		};
+
+
+		void rotate(BstNode<Key, T> *node, BstNode<Key, T> **root){
+			if (node->getDirection() == Direction::Right){
+				this->rotateLeft(node, root);
+			} else
+				this->rotateRight(node, root);
+		}
+
+		void mergeTrees(BstNode<Key, T> *node, BstNode<Key, T> **root = NULL){
+			if (!node)
+				return ;
+			this->findSlot(node);
+			this->mergeTrees(node->left, root);
+			this->mergeTrees(node->right, root);
+		};
+
+		void rotateLeft(BstNode<Key, T> *node, BstNode<Key, T> **root){
+			BstNode<Key, T> *old_parent = node->parent;
+			
+			old_parent->right = NULL;
+			node->parent = node->parent->parent;
+			if (old_parent->parent && old_parent->getDirection() == Direction::Right){
+				node->parent->right = node;
+			} else if (old_parent->parent)
+				node->parent->left = node;
+
+			BstNode<Key, T> *leftTree = node->left;
+			node->left = old_parent;
+			old_parent->parent = node;
+			this->mergeTrees(leftTree, &node->left);
+
+			if (old_parent == *root)
+				*root = node;
+		};
+
+		void rotateRight(BstNode<Key, T> *node,  BstNode<Key, T> **root){
+			BstNode<Key, T> *old_parent = node->parent;
+			
+			old_parent->left = NULL;
+			node->parent = node->parent->parent;
+			if (old_parent->parent && old_parent->getDirection() == Direction::Right){
+				node->parent->right = node;
+			} else if (old_parent->parent)
+				node->parent->left = node;
+
+			BstNode<Key, T> *right = node->right;
+			node->right = old_parent;
+			old_parent->parent = node;
+			this->mergeTrees(right, &node->right);
+
+			if (old_parent == *root)
+				*root = node;
+		};
+
+		T &insert(const Key &key , BstNode<Key, T> **root){
 			if (this->data == NULL){
 				this->data = this->_alloc.allocate(1);
 				this->size += 1;
@@ -147,11 +209,75 @@ namespace ft
 			BstNode<Key, T> *found;
 			found = findSlot(new_node);
 			if (!new_node->parent)
-				delete new_node;	
+				delete new_node;
+			else 
+				this->checkBalance(new_node, new_node, root);
 			return found->data->second;
 		};
 
-		bool insert(const value_type &value){
+
+		int checkHeight(BstNode<Key, T> *node){
+			int size = 0;
+
+			while (node)
+			{
+				BstNode<Key, T> *sibling = node->getSibling();
+				if (node->left)
+					node = node->left;
+				else if (node->right)
+					node = node->right;
+				else if (sibling && sibling->right)
+					node = sibling->right;
+				else if (sibling && sibling->left)
+					node = sibling->left;
+				else
+					node = NULL;
+				size++;
+			}
+			return size;
+			
+
+		}
+
+
+		void checkBalance(BstNode<Key, T> *node, BstNode<Key, T> *new_node, BstNode<Key, T> **root){
+			if (!node)
+				return ;
+			int difference = checkHeight(node->left) - checkHeight(node->right);
+			if (difference < -1){
+				// direita
+				// if (checkHeight(node->right->right) > checkHeight(node->right->left)){
+				if (new_node->getDirection() == Direction::Right){
+					rotate(node->right, root);
+					return ;
+				}
+				else {
+					rotate(new_node, root);
+					rotate(node->left, root);
+					return ;
+				}
+
+			}
+			
+			if (difference > 1){
+				// esquerda
+				if (checkHeight(node->left->left) > checkHeight(node->left->right)){
+					rotate(node->left, root);
+					return ;
+				}
+				else {
+					rotate(node->left->right, root);
+					rotate(node->right, root);
+					return ;
+				}
+			}
+
+			this->checkBalance(node->parent, new_node, root);
+		}
+
+
+
+		bool insert(const value_type &value, BstNode<Key, T> **root){
 			if (this->data == NULL){
 				this->data = this->_alloc.allocate(1);
 				this->size += 1;
@@ -166,6 +292,7 @@ namespace ft
 				delete new_node;
 				return false;
 			}
+			this->checkBalance(new_node, new_node, root);
 			return true;
 		};
 

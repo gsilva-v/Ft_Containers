@@ -46,15 +46,18 @@ namespace ft
 			** @return The underlying iterator.
 			*/
 			iterator_type base() const{
-				return this->current;
+				iterator_type cpy = this->current;
+				return cpy;
 			}
 
 			reference operator*() const {
-				return *current;
+				Iter tmp = current;
+				tmp--;
+				return *tmp;
 			}
 
 			pointer operator->() {
-				return &(*current);
+				return &(operator*());
 			}
 
 			/*

@@ -21,10 +21,9 @@ int main(int argc, char const *argv[])
 			ftMap[i] = i * 3; 
 		}
 
-		std::cout << &(*ftMap.begin()) <<"\n";
-		std::cout << &(*ftMap.end()) <<"\n";
-		for (std::map<int, int>::reverse_iterator std_itMap = ftMap.rbegin(); std_itMap != ftMap.rend(); std_itMap++)
-			buf << "std: " <<std_itMap->first <<" "<< std_itMap->second << std::endl;
+		for (ft::map<int, int>::iterator std_itMap = ftMap.end(); std_itMap != ftMap.begin(); std_itMap--)
+			if (std_itMap != ftMap.end())
+				buf << "ft: " << std_itMap->first <<" "<< std_itMap->second << std::endl;
 		// ftMap.clear();
 		gettimeofday(&time_now, nullptr);   
 		time_t finish = (time_now.tv_sec * 1000) + (time_now.tv_usec / 1000);

@@ -11,6 +11,7 @@
 #include "utility.hpp"
 #include "biderectional_iterator.hpp"
 #include "reverse_iterator.hpp"
+#include "vector.hpp"
 
 namespace ft
 {
@@ -76,7 +77,7 @@ namespace ft
 
 			// Destructor
 			~map(){
-				// this->clear();
+				this->clear();
 			};
 
 			// Operator=
@@ -311,11 +312,17 @@ namespace ft
 			*/
 			void erase( iterator first, iterator last ){
 				iterator holder;
+				ft::vector<Key> keys;
+
 				for (; first != last;){
-					holder = first;
+					keys.push_back(first->first);
 					first++;
-					this->erase(holder->first);			
 				}
+				while (!keys.empty()){
+					this->_node.remove(keys.back());			
+					keys.pop_back();
+				}
+				
 			};
 
 			// /*
@@ -325,9 +332,9 @@ namespace ft
 			// ** 
 			// ** @return Number of elements removed (0 or 1)
 			// */
-			// size_type erase( const Key& key ){
-			// 	return (this->_node.remove(key)) ? 1 : 0;
-			// };
+			size_type erase( const Key& key ){
+				return (this->_node.remove(key)) ? 1 : 0;
+			};
 
 			// Swap
 			/*

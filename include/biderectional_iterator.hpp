@@ -25,10 +25,6 @@ template <typename Key, typename T> struct bidirectional_iterator
 			this->_size = size;
 			this->_pair = NULL;
 
-			if (node){
-				while(node && node->parent)
-					node = node->parent;
-			}
 			this->_firstNode = first;
 			this->_lastNode = last;
 			if (end){

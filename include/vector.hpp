@@ -778,14 +778,6 @@ namespace ft
 		** 
 		*/
 		iterator erase( iterator first, iterator last ){
-			// for (; first != last; first++, _end--)
-			// 	_alloc.destroy(&(*first));
-			// _alloc.destroy(&(*first));
-			// size_type index = &(*first) - _start + 1;
-			// size_type end = &(*last) - _start ;
-			// for ( ; end < this->size() - 1 ; index++, end++)
-			// 	this->_alloc.construct(this->_start + index, *(this->_start + end));
-			// return (iterator(_end - 1));
 			pointer p_first = &(*first);
 			for (; &(*first) != &(*last); first++)
 				_alloc.destroy(&(*first));

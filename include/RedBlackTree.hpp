@@ -176,11 +176,15 @@ namespace ft
 			return NULL;
 		};
 
-		void remove(Key key){
+		bool remove(Key key){
 			Node<Key, T> *node = this->find(key);
 
-			if (node)
+			if (node){
 				this->deleteNode(node);
+				return true;
+
+			}
+			return false;
 		};
 	};
 
@@ -339,7 +343,7 @@ namespace ft
 			if (isBlack(sibling) && isBlack(sibling->left) && isBlack(sibling->right)){
 				sibling->color = ft::Color::Red;
 				if (node->parent->color == ft::Color::Red)
-					node->parent->color == ft::Color::Black;
+					node->parent->color = ft::Color::Black;
 				else
 					repassBlack(node->parent);
 			}
@@ -357,7 +361,7 @@ namespace ft
 					Node<Key, T> *nearChild = getChild(sibling,ft::BstAlgorithm<Key, T>::getDirection(node));
 					sibling->color = ft::Color::Red;
 					nearChild->color = ft::Color::Black;
-					rotate(nearChild);				
+					rotate(nearChild);			
 			}
 			// Case 6
 			if (isBlack(sibling) &&
@@ -376,18 +380,27 @@ namespace ft
 					this->repassBlack(node);
 				}
 				this->swapNode(node, NULL);
+				this->_alloc->destroy(node->value);
+				this->_alloc->deallocate(node->value, 1);
+
 				delete node;
+
 			} else if (node->left && node->right){
 				Node<Key, T> *higher = this->getHigherNode(node->left);
-
+				value_type *holder = node->value;
 				node->value = higher->value;
+				higher->value = holder;
 				deleteNode(higher);
 			} else if (node->left || node->right){
 				if (node->left){
+					value_type *holder = node->value;
 					node->value = node->left->value;
+					node->left->value = holder;
 					deleteNode(node->left);
 				} else {
+					value_type *holder = node->value;
 					node->value = node->right->value;
+					node->right->value = holder;
 					deleteNode(node->right);
 				}
 			}

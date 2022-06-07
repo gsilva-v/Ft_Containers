@@ -416,7 +416,7 @@ namespace ft
 			** @return Iterator to an element with key equivalent to key. If no such element is found, past-the-end (see end()) iterator is returned.
 			*/
 			iterator find(const Key& key){
-				if (!this->_node)
+				if (!this->_node.root)
 					return this->end();
 				ft::RedBlackTree<Key, T> *found = this->_node.find(key);
 				if (!found)

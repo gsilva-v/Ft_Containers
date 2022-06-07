@@ -88,7 +88,7 @@ template <typename Key, typename T> struct bidirectional_iterator
 				this->_coming_from = ft::BstAlgorithm<Key, T>::getDirection(this->_node);
 				const Key key = this->_node->value->first;
 				this->_node = _node->parent;
-				if (this->_coming_from == ft::Direction::Right){
+				if (this->_coming_from == 2){
 					while (this->_node->parent){
 						this->_node = this->_node->parent;
 						if (this->_node->value->first > key)
@@ -120,13 +120,13 @@ template <typename Key, typename T> struct bidirectional_iterator
 				this->_node = this->_lastNode;
 				
 			} else if (_node != this->_firstNode && _node->left){
-				_coming_from = ft::Direction::Parent;
+				_coming_from = 0;
 				this->_node = ft::BstAlgorithm<Key, T>::getHigherNode(this->_node->left);
 			} else if( this->_node->parent){
 				_coming_from = ft::BstAlgorithm<Key, T>::getDirection(this->_node);
 				Key key = this->_node->value->first;
 				this->_node = _node->parent;
-				if (_coming_from == ft::Direction::Left){
+				if (_coming_from == 1){
 					while (this->_node && this->_node->parent){
 						this->_node = this->_node->parent;
 						if (this->_node->value->first < key)
@@ -193,10 +193,10 @@ template <typename Key, typename T> struct bidirectional_iterator
 		// }
 
 		private:
-			ft::Node<Key, T> 	*_node;
-			ft::Node<Key, T>		*_lastNode;			
+			ft::Node<Key, T> 		*_node;
 			ft::Node<Key, T>		*_firstNode;			
-			ft::Direction			_coming_from;
+			ft::Node<Key, T>		*_lastNode;			
+			int						_coming_from;
 			bool					_end;
 			size_t					_size;
 			ft::pair<const Key, T>	*_pair;

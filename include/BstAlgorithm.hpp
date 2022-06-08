@@ -42,7 +42,7 @@ namespace ft
 		BstNode<Key, T> *parent;
 		pointer data;
 		int color;
-		int size;
+		size_type size;
 		value_type 	value;
 		
 	protected:

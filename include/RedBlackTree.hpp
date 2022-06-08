@@ -37,10 +37,11 @@ namespace ft
 		typedef Key key_type;
 		typedef T mapped_type;			
 		typedef ft::pair<const Key, T> value_type;
+		int size;
 		Node<Key, T> *root;
 
 	public:
-		BstAlgorithm(Allocator *alloc):_alloc(alloc), root(NULL) {};
+		BstAlgorithm(Allocator *alloc):_alloc(alloc), size(0),root(NULL) {};
 		~BstAlgorithm(){};
 
 		Node<Key, T> *newNode(Key key){
@@ -50,8 +51,22 @@ namespace ft
 			new_node->left = NULL;
 			new_node->parent = NULL;
 			new_node->color = 0;
+			this->size += 1;
 			new_node->value = this->_alloc->allocate(1);
 			this->_alloc->construct(new_node->value, value_type(key, T()));
+			return new_node;
+		}
+
+		Node<Key, T> *newNode(value_type value){
+			Node<Key, T> *new_node = new Node<Key, T>;
+
+			new_node->right = NULL;
+			new_node->left = NULL;
+			new_node->parent = NULL;
+			new_node->color = 0;
+			this->size += 1;
+			new_node->value = this->_alloc->allocate(1);
+			this->_alloc->construct(new_node->value, value);
 			return new_node;
 		}
 
@@ -93,7 +108,8 @@ namespace ft
 			Node<Key, T> *found;
 			found = findSlot(new_node);
 			if (!new_node->parent && new_node != this->root)
-				delete new_node;	
+				delete new_node;
+			
 			return found->value->second;
 		};
 
@@ -130,6 +146,7 @@ namespace ft
 				}
 			}
 			delete node;
+			this->size -= 1;
 		};
 
 		void	swapNode(Node<Key, T> *node, Node<Key, T> *sub){
@@ -163,7 +180,6 @@ namespace ft
 			if (!root)
 				root = this->root;			
 			Node<Key, T> *init = root;
-
 			while (init)
 			{
 				if (key == init->value->first){
@@ -181,8 +197,8 @@ namespace ft
 
 			if (node){
 				this->deleteNode(node);
-				return true;
 
+				return true;
 			}
 			return false;
 		};
@@ -320,9 +336,12 @@ namespace ft
 		}
 
 		Node<Key, T> *getChild(Node<Key, T> *node, int dir){
-			if (dir == 1)
-				return node->left;
-			return node->right;
+			if (node){
+				if (dir == 1)
+					return node->left;
+				return node->right;
+			}
+			return NULL;
 		}
 
 
@@ -340,7 +359,8 @@ namespace ft
 				return ;
 			Node<Key, T> *sibling = this->getSibling(node);
 			// Case 3
-			if (isBlack(sibling) && isBlack(sibling->left) && isBlack(sibling->right)){
+			if (sibling && isBlack(sibling) && isBlack(sibling->left) && isBlack(sibling->right)){
+				
 				sibling->color = 1;
 				if (node->parent->color == 1)
 					node->parent->color = 0;
@@ -425,6 +445,25 @@ namespace ft
 			}
 			this->reddish(node);
 			return found->value->second;
+		};
+
+		bool insert(const value_type &value){
+			Node<Key, T> *node = this->newNode(value);
+			Node<Key, T> *found;
+			found = this->findSlot(node);
+			if (found->value->first != node->value->first){
+				delete node ;
+				return false;
+			}
+			if (!node->parent && node != this->root){//caso ja exista
+				delete node ;
+				return false;
+			}
+			else if (node == this->root){// se for o proprio root
+				return true;
+			}
+			this->reddish(node);
+			return true;
 		};
 	};
 }; // namespace ft

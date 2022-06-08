@@ -50,7 +50,8 @@ namespace ft
 			}
 		}
 
-		template <class InputIt> vector(InputIt first, typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type last, const Allocator& alloc = Allocator())//until C++20 (5)
+		template <class InputIt>
+		vector(InputIt first, typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type last, const Allocator& alloc = Allocator())//until C++20 (5)
 		: _alloc(alloc), _start(NULL), _end(NULL), _end_capacity(NULL)
 		{
 			this->insert(this->begin(), first, last);
@@ -343,7 +344,7 @@ namespace ft
 		** 
 		*/
 		iterator end(){
-			return iterator(_end);
+			return iterator(_start + this->size());
 		}
 		/*
 		** @brief  Returns an iterator to the element following the last element of the vector.
@@ -357,7 +358,7 @@ namespace ft
 		** 
 		*/
 		const_iterator end() const{
-			return const_iterator(_end);
+			return const_iterator(_start + this->size());
 		}
 
 		// RBegin
@@ -406,7 +407,7 @@ namespace ft
 		** 
 		*/
 		reverse_iterator rend(){
-			return (reverse_iterator(begin()));
+			return (reverse_iterator((begin())));
 		}
 		/*
 		** @brief Returns a reverse iterator to the element following the last element of the reversed vector.
@@ -421,7 +422,7 @@ namespace ft
 		** 
 		*/
 		const_reverse_iterator rend() const{
-			return (reverse_iterator(begin()));
+			return (reverse_iterator((begin())));
 		}
 
 	// Capacity
@@ -651,16 +652,11 @@ namespace ft
 					else
 						_alloc.construct(new_start + i, T());					
 				}
-				if ( pos_len > this->size()){
-					std::cout << "ta errado\n";
-		
-				} else {
-					for (size_type j = 0; j < count; j++)
-						_alloc.construct(new_start + pos_len + j, value);
+				for (size_type j = 0; j < count; j++)
+					_alloc.construct(new_start + pos_len + j, value);
 
-					for (size_type j = 0; j < this->size() - pos_len; j++)
-						_alloc.construct(new_end - j - 1, *(_end - j - 1));
-				}
+				for (size_type j = 0; j < this->size() - pos_len; j++)
+					_alloc.construct(new_end - j - 1, *(_end - j - 1));
 				this->clear();
 				if (_start)
 					_alloc.deallocate(_start, this->capacity());
@@ -686,13 +682,6 @@ namespace ft
 			size_type	rangeSpace = std::abs(&(*last) - &(*first));
 			size_type	pos_len = &(*pos) - _start;
 			if (this->size() + rangeSpace <= this->capacity()){
-				// for (size_type j = 0; j < rangeSpace; j++){
-				// 	for (size_type i = this->size(); i > pos_len; i--)
-				// 		_alloc.construct(_start + i, *(_start + i - 1));
-				// 	_end++;
-				// 	_alloc.construct(_start + pos_len, *first);
-				// 	first++;
-				// }
 				for(size_type i = 0; i < this->size() - (&(*pos) - _start); i++)
 					_alloc.construct(_end - i + (rangeSpace - 1), *(_end - i - 1));
 				_end += rangeSpace;
@@ -720,18 +709,12 @@ namespace ft
 					else
 						_alloc.construct(new_start + i, T());					
 				}
-				if ( pos_len > this->size()){
-					std::cout << "ta errado\n";
-		
-				} else {
-					for (size_type j = 0; j < rangeSpace; j++){
-						_alloc.construct(new_start + pos_len + j, *first);
-						first++;
-					}
-					
-					for (size_type j = 0; j < this->size() - pos_len; j++)
-						_alloc.construct(new_end - j - 1, *(_end - j - 1));
+				for (size_type j = 0; j < rangeSpace; j++){
+					_alloc.construct(new_start + pos_len + j, *first);
+					first++;
 				}
+				for (size_type j = 0; j < this->size() - pos_len; j++)
+					_alloc.construct(new_end - j - 1, *(_end - j - 1));
 				this->clear();
 				if (_start)
 					_alloc.deallocate(_start, this->capacity());

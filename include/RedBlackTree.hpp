@@ -3,19 +3,10 @@
 
 #include <iostream>
 #include "utility.hpp"
+#include "functional.hpp"
 
 namespace ft
 {
-	// enum Direction{
-	// 	Left, 1
-	// 	Right, 2
-	// 	Parent 0 
-	// };
-
-	// enum Color{
-	// 	Black, 0 
-	// 	Red 1
-	// };
 
 	template <typename Key, typename T> 
 	struct Node
@@ -27,7 +18,7 @@ namespace ft
 		int 	color;
 	};
 
-  	template<class Key, class T, class Allocator = std::allocator<ft::pair<const Key, T> > >
+  	template<class Key, class T, class Compare = ft::less<const Key>, class Allocator = std::allocator<ft::pair<const Key, T> > >
 	class BstAlgorithm
 	{	
 	protected:
@@ -37,7 +28,8 @@ namespace ft
 		typedef Key key_type;
 		typedef T mapped_type;			
 		typedef ft::pair<const Key, T> value_type;
-		int size;
+		size_t size;
+		Compare _comp;
 		Node<Key, T> *root;
 
 	public:
@@ -51,7 +43,6 @@ namespace ft
 			new_node->left = NULL;
 			new_node->parent = NULL;
 			new_node->color = 0;
-			this->size += 1;
 			new_node->value = this->_alloc->allocate(1);
 			this->_alloc->construct(new_node->value, value_type(key, T()));
 			return new_node;
@@ -64,7 +55,6 @@ namespace ft
 			new_node->left = NULL;
 			new_node->parent = NULL;
 			new_node->color = 0;
-			this->size += 1;
 			new_node->value = this->_alloc->allocate(1);
 			this->_alloc->construct(new_node->value, value);
 			return new_node;
@@ -77,27 +67,30 @@ namespace ft
 				root = &this->root;
 			if (*root == NULL){
 				*root = node;
+				this->size++;
 				return node;
 			} else
 				init = *root;
 			while (init)
 			{
-				if (node->value->first < init->value->first){
+				if (node->value->first == init->value->first)				
+					return init;
+				else if (_comp(node->value->first, init->value->first)){
 					if (!init->left){
 						node->parent = init;
 						init->left = node;
+						this->size++;
 					}
 					init = init->left;
 				}
-				else if (node->value->first > init->value->first){
+				else if (!(_comp(node->value->first, init->value->first))){
 					if (!init->right){
 						node->parent = init;
 						init->right = node;
+						this->size++;
 					}
 					init = init->right;
 				}
-				else
-					return init;
 			}
 			return node;
 		};
@@ -146,7 +139,7 @@ namespace ft
 				}
 			}
 			delete node;
-			this->size -= 1;
+			this->size --;
 		};
 
 		void	swapNode(Node<Key, T> *node, Node<Key, T> *sub){
@@ -194,10 +187,8 @@ namespace ft
 
 		bool remove(Key key){
 			Node<Key, T> *node = this->find(key);
-
 			if (node){
 				this->deleteNode(node);
-
 				return true;
 			}
 			return false;
@@ -232,25 +223,25 @@ namespace ft
 		void rotate(Node<Key, T> *node){
 			if (ft::BstAlgorithm<Key, T>::getDirection(node) == 2){
 				this->rotateLeft(node);
+				
 			} else
 				this->rotateRight(node);
 		}
 
 		void rotateLeft(Node<Key, T> *node){
 			Node<Key, T> *old_parent = node->parent;
-			
 			old_parent->right = NULL;
 			node->parent = node->parent->parent;
 			if (old_parent->parent && ft::BstAlgorithm<Key, T>::getDirection(old_parent) == 2){
 				node->parent->right = node;
 			} else if (old_parent->parent)
 				node->parent->left = node;
-
 			Node<Key, T> *leftTree = node->left;
 			node->left = old_parent;
 			old_parent->parent = node;
+			size_t holder_size = this->size;
 			this->mergeTrees(leftTree, &node->left);
-
+			this->size = holder_size;
 			if (old_parent == this->root)
 				this->root = node;
 		};
@@ -269,7 +260,6 @@ namespace ft
 			node->right = old_parent;
 			old_parent->parent = node;
 			this->mergeTrees(right, &node->right);
-
 			if (old_parent == this->root)
 				this->root = node;
 		};
@@ -355,6 +345,7 @@ namespace ft
 
 		void	repassBlack(Node<Key, T> *node){
 			// Case 2
+
 			if (node == this->root)
 				return ;
 			Node<Key, T> *sibling = this->getSibling(node);
@@ -389,6 +380,7 @@ namespace ft
 				sibling->color = node->parent->color;
 				node->parent->color = 0;
 				rotate(sibling);
+			
 				getChild(sibling, opositeDirection(ft::BstAlgorithm<Key, T>::getDirection(node)))->color = 0;
 			}
 		};
@@ -396,15 +388,15 @@ namespace ft
 		void deleteNode(Node<Key, T> *node){
 			// case 1
 			if (!node->left && !node->right){
+				
 				if (node->color == 0){
 					this->repassBlack(node);
 				}
 				this->swapNode(node, NULL);
 				this->_alloc->destroy(node->value);
 				this->_alloc->deallocate(node->value, 1);
-
+				this->size--;
 				delete node;
-
 			} else if (node->left && node->right){
 				Node<Key, T> *higher = this->getHigherNode(node->left);
 				value_type *holder = node->value;

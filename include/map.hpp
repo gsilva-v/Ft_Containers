@@ -4,9 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <cstddef>
-#include <exception>
 #include "RedBlackTree.hpp"
-// #include "BstUtils.hpp"
 #include "functional.hpp"
 #include "utility.hpp"
 #include "biderectional_iterator.hpp"
@@ -69,9 +67,17 @@ namespace ft
 			explicit map( const Compare& comp, const Allocator& alloc = Allocator() )
 			: _comp(comp), _alloc(alloc), _node(&_alloc) {};
 
-			// template< class InputIt >
-			// 	map ( InputIt first, InputIt last, const Compare& comp = Compare(), const Allocator& alloc = Allocator() );
+			template< class InputIt > 
+			map( InputIt first, InputIt last, const Compare& comp = Compare(), const Allocator& alloc = Allocator())
+			: _comp(comp), _alloc(alloc), _node(&_alloc) {
+				this->clear();
+				this->insert(first, last);
+			};
 
+			map( const map& other )
+			:_comp(other._comp), _alloc(other._alloc), _node(&_alloc) {
+				this->operator=(other);
+			};
 			// Destructor
 			~map(){
 				this->clear();
@@ -80,11 +86,12 @@ namespace ft
 			// Operator=
 			map& operator=( const map& other ){
 				if (this != &other){
-					this->_alloc = other._alloc;
-					this->_comp = other._comp;
+					this->clear();
+					this->insert(other.begin(), other.end());
 				}
 				return *this;
 			};
+			
 			// Get alocator
 			/*
 			** @brief Returns the allocator associated with the container.
@@ -97,8 +104,7 @@ namespace ft
 				return (this->_alloc);
 			};
 		// Element access
-		// AT nao tem no C++98 https://en.cppreference.com/w/cpp/container/map/at
-
+		
 			//Operator[] 
 			/*
 			** @brief Returns a reference to the value that is mapped to a key equivalent to key, performing an insertion if such key does not already exist.
@@ -108,9 +114,6 @@ namespace ft
 			** @return Reference to the mapped value of the new element if no element with key key existed. Otherwise a reference to the mapped value of the existing element whose key is equivalent to key.
 			*/
 			T& operator[](const Key& key){
-				// if (!this->_node){
-				// 	this->_node = new ft::RedBlackTree<Key, T>(key, this->_alloc);
-				// }
 				return this->_node.insert(key);
 			};
 			
@@ -318,7 +321,6 @@ namespace ft
 				}
 				while (!keys.empty()){
 					this->_node.remove(keys.back());			
-					this->_node.size--;
 					keys.pop_back();
 				}
 				
@@ -332,13 +334,8 @@ namespace ft
 			// ** @return Number of elements removed (0 or 1)
 			// */
 			size_type erase( const Key& key ){
-
 				int res = this->_node.remove(key);
-				if (res){
-					this->_node.size -= 1;
-					return 1;
-				}
-				return 0;
+				return res;
 			};
 
 			// Swap
@@ -384,8 +381,16 @@ namespace ft
 			** @return Returns a pair consisting of an iterator to the inserted element (or to the element that prevented the insertion) and a bool denoting whether the insertion took place.
 			*/
 			iterator insert( iterator hint, const value_type& value ){
-				this->_node.find(hint->first)->insert(value);
-				return iterator(this->_node.find(value.first), this->_node.size);
+				ft::RedBlackTree<Key, T> subtree(&this->_alloc);
+				
+				subtree.root = this->_node.find(hint->first);
+				if (subtree.insert(value)){
+					this->_node.size++;
+				}
+				return iterator(this->_node.find(value.first), 
+					this->_node.getLowerNode(this->_node.root),
+					this->_node.getHigherNode(this->_node.root),
+					0);
 			};
 			
 			/*
@@ -571,7 +576,6 @@ namespace ft
 				return (value_compare(key_compare()));
 			};
 
-
 	};
 	template< class Key, class T, class Compare, class Alloc >
 	void swap( ft::map<Key,T,Compare,Alloc>& lhs,
@@ -582,8 +586,8 @@ namespace ft
 	template< class Key, class T, class Compare, class Alloc >
 				bool operator==( const ft::map<Key,T,Compare,Alloc>& lhs,
             	     const ft::map<Key,T,Compare,Alloc>& rhs ){
-						ft::map<Key,T>::iterator lit = lhs.begin();
-						ft::map<Key,T>::iterator rit = rhs.begin();
+						typename ft::map<Key, T>::iterator lit = lhs.begin();
+						typename ft::map<Key, T>::iterator rit = rhs.begin();
 						if (lhs.size() != rhs.size())
 								return false;
 						for(; lit != lhs.end(); lit++, rit++){
@@ -603,8 +607,8 @@ namespace ft
 	template< class Key, class T, class Compare, class Alloc >
 				bool operator<( const ft::map<Key,T,Compare,Alloc>& lhs,
             	    const ft::map<Key,T,Compare,Alloc>& rhs ){
-						ft::map<Key,T>::iterator lit = lhs.begin();
-						ft::map<Key,T>::iterator rit = rhs.begin();
+						typename ft::map<Key,T>::iterator lit = lhs.begin();
+						typename ft::map<Key,T>::iterator rit = rhs.begin();
 						for(; lit != lhs.end(); lit++, rit++){
 							if (lit.first > rit.first || rit == rhs.end())
 								return false;
@@ -618,12 +622,12 @@ namespace ft
 	template< class Key, class T, class Compare, class Alloc >
 				bool operator<=( const ft::map<Key,T,Compare,Alloc>& lhs,
             	     const ft::map<Key,T,Compare,Alloc>& rhs ){
-						ft::map<Key,T>::iterator lit = lhs.begin();
-						ft::map<Key,T>::iterator rit = rhs.begin();
+						typename ft::map<Key,T>::iterator lit = lhs.begin();
+						typename ft::map<Key,T>::iterator rit = rhs.begin();
 						for(; lit != lhs.end(); lit++, rit++){
 							if (lit.first > rit.first || rit == rhs.end())
 								return false;
-							else if (lit.first =< rit.first )
+							else if (lit.first <= rit.first )
 								return true;
 						}
 						return true;
@@ -632,8 +636,8 @@ namespace ft
 	template< class Key, class T, class Compare, class Alloc >
 				bool operator>( const ft::map<Key,T,Compare,Alloc>& lhs,
             	    const ft::map<Key,T,Compare,Alloc>& rhs ){
-						ft::map<Key,T>::iterator lit = lhs.begin();
-						ft::map<Key,T>::iterator rit = rhs.begin();
+						typename ft::map<Key,T>::iterator lit = lhs.begin();
+						typename ft::map<Key,T>::iterator rit = rhs.begin();
 						for(; lit != lhs.end(); lit++, rit++){
 							if (lit.first < rit.first || rit == rhs.end())
 								return false;
@@ -646,8 +650,8 @@ namespace ft
 	template< class Key, class T, class Compare, class Alloc >
 				bool operator>=( const ft::map<Key,T,Compare,Alloc>& lhs,
             	     const ft::map<Key,T,Compare,Alloc>& rhs ){
-						ft::map<Key,T>::iterator lit = lhs.begin();
-						ft::map<Key,T>::iterator rit = rhs.begin();
+						typename ft::map<Key,T>::iterator lit = lhs.begin();
+						typename ft::map<Key,T>::iterator rit = rhs.begin();
 						for(; lit != lhs.end(); lit++, rit++){
 							if (lit.first < rit.first || rit == rhs.end())
 								return false;
@@ -655,10 +659,7 @@ namespace ft
 								return true;
 						}
 						return true;
-					 };
-
-
-	
+					 };	
 } // namespace ft
 
 #endif // MAP_HPP

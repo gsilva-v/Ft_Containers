@@ -24,8 +24,8 @@ namespace ft
 		typedef	Allocator									allocator_type;
 		typedef typename allocator_type::size_type			size_type;
 		typedef typename allocator_type::difference_type	difference_type;
-		typedef typename allocator_type::reference			reference;
-		typedef typename allocator_type::const_reference	const_reference;
+		typedef value_type&									reference;
+		typedef const value_type&							const_reference;
 		typedef typename allocator_type::pointer			pointer;
 		typedef typename allocator_type::const_pointer		const_pointer;
 		typedef ft::random_access_iterator<value_type>		iterator;
@@ -36,7 +36,10 @@ namespace ft
 	// Member functions
 	// Contructors (docs: https://en.cppreference.com/w/cpp/container/vector/vector)
 
-		explicit vector(const Allocator& alloc = Allocator())//until C++17 (2)
+		vector()
+		: _alloc(), _start(NULL), _end(NULL), _end_capacity(NULL){};
+
+		explicit vector(const Allocator& alloc )//until C++17 (2)
 		: _alloc(alloc), _start(NULL), _end(NULL), _end_capacity(NULL){}
 		
 		explicit vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator())//until C++11 (3)
@@ -592,14 +595,10 @@ namespace ft
 					else
 						_alloc.construct(new_start + i, T());					
 				}
-				if ( pos_len > this->size()){
-					std::cout << "ta errado\n";
-		
-				} else {
-					_alloc.construct(new_start + pos_len, value);
-					for (size_type j = 0; j < this->size() - pos_len; j++)
-						_alloc.construct(new_end - j - 1, *(_end - j - 1));
-				}
+				_alloc.construct(new_start + pos_len, value);
+				for (size_type j = 0; j < this->size() - pos_len; j++)
+					_alloc.construct(new_end - j - 1, *(_end - j - 1));
+
 				this->clear();
 				if (_start)
 					_alloc.deallocate(_start, this->capacity());
@@ -678,7 +677,8 @@ namespace ft
 		** 
 		** 
 		*/
-		template <class InputIt> void insert( iterator pos, InputIt first, typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type last ){// (4)
+		template <class InputIt> 
+		void insert( iterator pos, InputIt first, typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type last ){// (4)
 			size_type	rangeSpace = std::abs(&(*last) - &(*first));
 			size_type	pos_len = &(*pos) - _start;
 			if (this->size() + rangeSpace <= this->capacity()){

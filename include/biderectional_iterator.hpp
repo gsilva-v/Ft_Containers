@@ -164,33 +164,23 @@ template <typename Key, typename T> struct bidirectional_iterator
 			return a._node != b._node;
 		};
 
-		// bidirectional_iterator operator+(difference_type d) const{
-		// 	bidirectional_iterator tmp(this->_ptr + d);
-		// 	return tmp;
-		// }
+		bidirectional_iterator operator+(difference_type d) const{
+			bidirectional_iterator tmp(	this->_node, this->_firstNode, this->_lastNode, this->_size);
+			while (d){
+				++tmp;
+				d--;
+			}
+			return tmp;
+		}
 
-		// bidirectional_iterator& operator+=(difference_type d){
-		// 	this->_ptr += d;
-		// 	return *this;
-		// }
-
-		// bidirectional_iterator operator-(difference_type d) const{
-		// 	bidirectional_iterator tmp(this->_ptr - d);
-		// 	return tmp;
-		// }
-
-		// bidirectional_iterator& operator-=(difference_type d){
-		// 	this->_ptr -= d;
-		// 	return *this;
-		// }
-
-		// difference_type operator-(bidirectional_iterator const & rhs) const {
-		// 	return this->_ptr - rhs._ptr;
-		// }
-
-		// reference operator[]( difference_type n) const {
-		// 	return *(this->_ptr + n);
-		// }
+		bidirectional_iterator operator-(difference_type d) const{
+			bidirectional_iterator tmp(	this->_node, this->_firstNode, this->_lastNode, this->_size);
+			while (d){
+				--tmp;
+				d--;
+			}
+			return tmp;
+		}
 
 		private:
 			ft::Node<Key, T> 		*_node;

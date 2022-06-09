@@ -108,8 +108,8 @@ namespace ft
 
 		static int getDirection(Node<Key, T> *node){
 			if (node->parent->right == node)
-				return 2;
-			return 1;
+				return 2;//Direita
+			return 1;//Esquerda
 		};
 
 		static Node<Key, T> *getHigherNode(Node<Key, T> *node){
@@ -142,33 +142,50 @@ namespace ft
 			this->size --;
 		};
 
-		void	swapNode(Node<Key, T> *node, Node<Key, T> *sub){
-			
-			if (!node)
-					return;
-
-			if (sub){
-				sub->parent = node->parent;
-				if (node->left != sub && node->left){
-					sub->left = node->left;
-					node->left->parent = sub;
-				}
-				if (node->right != sub && node->right){
-					sub->right = node->right;
-					node->right->parent = sub;
-				}
-			}
-		
-			if (node && node->parent){
-				if (node->parent->left == node)
-					node->parent->left = sub;
+		void	connectFamily(Node<Key, T> *from, Node<Key, T> *to){
+			Node<Key, T> *fromParent = from->parent;
+			Node<Key, T> *fromLeft = from->left;
+			Node<Key, T> *fromRight = from->right;
+			if (fromParent){
+				if (this->getDirection(from) == 1)
+					fromParent->left = to;
 				else
-					node->parent->right = sub;
-			}		
+					fromParent->right = to;
+			}
 			else
-				this->root = sub;
+				this->root = to;
+			if (fromLeft)
+				fromLeft->parent = to;
+			if (fromRight)
+				fromRight->parent = to;
 		}
 
+		void	swapPointers(Node<Key, T> *node1, Node<Key, T> *node2){
+			Node<Key, T> *parentHolder = node1->parent;
+			Node<Key, T> *leftHolder = node1->left;
+			Node<Key, T> *rightHolder = node1->right;
+			this->swap(node1->color, node2->color);
+			node1->parent = node2->parent == node1 ? NULL : node2->parent;
+			node1->left = node2->left == node1 ? NULL : node2->left;
+			node1->right = node2->right == node1 ? NULL : node2->right;
+			node2->parent = parentHolder == node2 ? NULL : parentHolder;
+			node2->left = leftHolder == node2 ? NULL : leftHolder;
+			node2->right = rightHolder == node2 ? NULL : rightHolder;
+		}
+
+		void	swapNode(Node<Key, T> *node, Node<Key, T> *sub){
+			this->connectFamily(node, sub);
+			this->connectFamily(sub, node);
+			this->swapPointers(node, sub);
+		}
+
+
+		template <typename J>
+		void swap(J &n1, J &n2){
+			J holder = n1;
+			n1 = n2;
+			n2 = holder;
+		}
 		Node<Key, T> *find(Key key, Node<Key, T> *root = NULL){
 			if (!root)
 				root = this->root;			
@@ -388,33 +405,32 @@ namespace ft
 		void deleteNode(Node<Key, T> *node){
 			// case 1
 			if (!node->left && !node->right){
-				
 				if (node->color == 0){
 					this->repassBlack(node);
 				}
-				this->swapNode(node, NULL);
+				if (node->parent){
+					if (this->getDirection(node) == 2)
+						node->parent->right = NULL;
+					else
+						node->parent->left = NULL;
+				}
+				else
+					this->root = NULL;
 				this->_alloc->destroy(node->value);
 				this->_alloc->deallocate(node->value, 1);
 				this->size--;
 				delete node;
 			} else if (node->left && node->right){
 				Node<Key, T> *higher = this->getHigherNode(node->left);
-				value_type *holder = node->value;
-				node->value = higher->value;
-				higher->value = holder;
+				this->swapNode(node, higher);
 				deleteNode(higher);
 			} else if (node->left || node->right){
 				if (node->left){
-					value_type *holder = node->value;
-					node->value = node->left->value;
-					node->left->value = holder;
-					deleteNode(node->left);
+					this->swapNode(node, node->left);
 				} else {
-					value_type *holder = node->value;
-					node->value = node->right->value;
-					node->right->value = holder;
-					deleteNode(node->right);
+					this->swapNode(node, node->right);
 				}
+				deleteNode(node);
 			}
 		};
 

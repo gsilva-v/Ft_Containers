@@ -313,17 +313,11 @@ namespace ft
 			*/
 			void erase( iterator first, iterator last ){
 				iterator holder;
-				ft::vector<Key> keys;
-
 				for (; first != last;){
-					keys.push_back(first->first);
+					holder = first;
 					first++;
+					this->_node.remove(holder->first);		
 				}
-				while (!keys.empty()){
-					this->_node.remove(keys.back());			
-					keys.pop_back();
-				}
-				
 			};
 
 			// /*

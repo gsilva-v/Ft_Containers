@@ -190,34 +190,50 @@ public:
 		ftv[1] = 2;
 		ftv[2] = 2;
 		ftv[3] = 2;
-		ftv[44] = 2;
+		ftv[4] = 2;
 		ftv[5] = 2;
+		ftv[6] = 2;
+		ftv[7] = 2;
 		stdv[1] = 2;
 		stdv[2] = 2;
 		stdv[3] = 2;
-		stdv[44] = 2;
+		stdv[4] = 2;
 		stdv[5] = 2;
+		stdv[6] = 2;
+		stdv[7] = 2;
 
 
-		ft::map<int, int>::iterator fti2 = ftv.begin();
-		std::map<int, int>::iterator stdi2 = stdv.begin();
-		ftbuff << fti2->first << " " << fti2->second;
-		fti2++;
-		ftbuff << fti2->first << " " << fti2->second;
-		ftv.erase(ftv.begin()->first);
-		ftbuff << fti2->first << " " << fti2->second;
-		fti2++;
-		ftbuff << fti2->first << " " << fti2->second;
-		fti2++;
+		ft::map<int, int>::iterator fti2 = --(ftv.end()) ;
+		std::map<int, int>::iterator stdi2 = --(stdv.end());
+		// // fti2++;
+		// ftbuff << fti2->first << " " << fti2->second;
+		// std::cout << fti2->first << " " << fti2->second;
+		ftv.erase(1);
+		ftv.erase(2);
+		ftv.erase(3);
+		ftv.erase(4);
+		ftv.erase(5);
+		ftv.erase(6);
+		
+		// ftbuff << fti2->first << " " << fti2->second;
+		// // fti2++;
+		// ftbuff << fti2->first << " " << fti2->second;
+		// fti2++;
 
-		stdbuff << stdi2->first << " " << stdi2->second;
-		stdi2++;
-		stdbuff << stdi2->first << " " << stdi2->second;
-		stdv.erase(stdv.begin()->first);
-		stdbuff << stdi2->first << " " << stdi2->second;
-		stdi2++;
-		stdbuff << stdi2->first << " " << stdi2->second;
-		stdi2++;
+		// stdbuff << stdi2->first << " " << stdi2->second;
+		// // stdi2++;
+		// stdbuff << stdi2->first << " " << stdi2->second;
+		stdv.erase(1);
+		stdv.erase(2);
+		stdv.erase(3);
+		stdv.erase(4);
+		stdv.erase(5);
+		stdv.erase(6);
+		std::cout << stdi2->first << " " << stdi2->second;
+		// stdbuff << stdi2->first << " " << stdi2->second;
+		// // stdi2++;
+		// stdbuff << stdi2->first << " " << stdi2->second;
+		// stdi2++;
 
 		if (ftv.size() != stdv.size())
 			std::cout << "\033[1;31mInvalid size\033[0m" ;

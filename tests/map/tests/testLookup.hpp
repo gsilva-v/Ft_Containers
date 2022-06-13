@@ -11,46 +11,46 @@ private:
 public:
 	testLookup();
 	static void count(){
-		// ft::map<int, int> ftm;
-		// std::map<int, int> stdm;
+		ft::map<int, int> ftm;
+		std::map<int, int> stdm;
 
-		// std::stringstream ftbuff;
-		// std::stringstream stdbuff;
-		// ftm[1] = 2;
-		// ftm[2] = 2;
-		// ftm[3] = 2;
-		// ftm[44] = 2;
-		// ftm[5] = 2;
-		// stdm[1] = 2;
-		// stdm[2] = 2;
-		// stdm[3] = 2;
-		// stdm[44] = 2;
-		// stdm[5] = 2;
+		std::stringstream ftbuff;
+		std::stringstream stdbuff;
+		ftm[1] = 2;
+		ftm[2] = 2;
+		ftm[3] = 2;
+		ftm[44] = 2;
+		ftm[5] = 2;
+		stdm[1] = 2;
+		stdm[2] = 2;
+		stdm[3] = 2;
+		stdm[44] = 2;
+		stdm[5] = 2;
 
-		// std::cout << "Testing: \"size_type count( const Key& key ) const\"\nresult: ";
-		// std::cout << "\nIn valid key: ";
+		std::cout << "Testing: \"size_type count( const Key& key ) const\"\nresult: ";
+		std::cout << "\nIn valid key: ";
 		
-		// if (ftm.count(5) != stdm.count(5))
-		// 	std::cout << "\033[1;31mKO\033[0m";
-		// else
-		// 	std::cout << "\033[1;32mOK\033[0m";
-		// std::cout << "\nIn invalid key: ";
+		if (ftm.count(5) != stdm.count(5))
+			std::cout << "\033[1;31mKO\033[0m";
+		else
+			std::cout << "\033[1;32mOK\033[0m";
+		std::cout << "\nIn invalid key: ";
 
-		// if (ftm.count(9) != stdm.count(9))
-		// 	std::cout << "\033[1;31mKO\033[0m";
-		// else
-		// 	std::cout << "\033[1;32mOK\033[0m";
+		if (ftm.count(9) != stdm.count(9))
+			std::cout << "\033[1;31mKO\033[0m";
+		else
+			std::cout << "\033[1;32mOK\033[0m";
 
 
-		// for(ft::map<int, int>::iterator fti = ftm.begin(); fti != ftm.end(); fti++)
-		// 	ftbuff << fti->first;
-		// for(std::map<int, int>::iterator stdi = stdm.begin(); stdi != stdm.end(); stdi++)
-		// 	stdbuff << stdi->first;
+		for(ft::map<int, int>::iterator fti = ftm.begin(); fti != ftm.end(); fti++)
+			ftbuff << fti->first;
+		for(std::map<int, int>::iterator stdi = stdm.begin(); stdi != stdm.end(); stdi++)
+			stdbuff << stdi->first;
 
-		// if (ftbuff.str() != stdbuff.str())
-		// 	std::cout << " | \033[1;31mInvalid values inside map\033[0m\n";
-		// else
-		// 	std::cout << " | \033[1;32mCorrect values inside map\033[0m\n";
+		if (ftbuff.str() != stdbuff.str())
+			std::cout << " | \033[1;31mInvalid values inside map\033[0m\n";
+		else
+			std::cout << " | \033[1;32mCorrect values inside map\033[0m\n";
 		std::cout << "\n";
 	};
 

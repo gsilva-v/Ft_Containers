@@ -4,6 +4,11 @@
 #include <iostream>
 #include "utility.hpp"
 #include "functional.hpp"
+#define RIGHT 2
+#define LEFT 1
+#define PARENT 0
+#define BLACK 0
+#define RED 1
 
 namespace ft
 {
@@ -42,7 +47,7 @@ namespace ft
 			new_node->right = NULL;
 			new_node->left = NULL;
 			new_node->parent = NULL;
-			new_node->color = 0;
+			new_node->color = BLACK;
 			new_node->value = this->_alloc->allocate(1);
 			this->_alloc->construct(new_node->value, value_type(key, T()));
 			return new_node;
@@ -54,7 +59,7 @@ namespace ft
 			new_node->right = NULL;
 			new_node->left = NULL;
 			new_node->parent = NULL;
-			new_node->color = 0;
+			new_node->color = BLACK;
 			new_node->value = this->_alloc->allocate(1);
 			this->_alloc->construct(new_node->value, value);
 			return new_node;
@@ -80,6 +85,7 @@ namespace ft
 						node->parent = init;
 						init->left = node;
 						this->size++;
+						break ;
 					}
 					init = init->left;
 				}
@@ -88,6 +94,7 @@ namespace ft
 						node->parent = init;
 						init->right = node;
 						this->size++;
+						break ; 
 					}
 					init = init->right;
 				}
@@ -96,20 +103,18 @@ namespace ft
 		};
 
 		virtual T& insert(Key key){
-
 			Node<Key, T> *new_node = newNode(key);
 			Node<Key, T> *found;
 			found = findSlot(new_node);
 			if (!new_node->parent && new_node != this->root)
-				delete new_node;
-			
+				delete new_node;	
 			return found->value->second;
 		};
 
 		static int getDirection(Node<Key, T> *node){
 			if (node->parent->right == node)
-				return 2;//Direita
-			return 1;//Esquerda
+				return RIGHT;
+			return LEFT;
 		};
 
 		static Node<Key, T> *getHigherNode(Node<Key, T> *node){
@@ -125,13 +130,15 @@ namespace ft
 		}
 
 		virtual void deleteNode(Node<Key, T> *node){
-			if (!node->left && !node->right){//se nao houver nenhum filho
+			if (!node->left && !node->right){//case don't have child
 				this->swapNode(node, NULL);
-			} else if (node->left && node->right){ //caso tenham 2 filhos
+			} else if (node->left && node->right){ //case have 2 child
 				Node<Key, T> *higher = this->getHigherNode(node->left);
 				this->swapNode(higher, higher->left);
+				higher->left = NULL;
+				higher->right = NULL;
 				this->swapNode(node, higher);
-			} else if (node->left || node->right){ //caso tenha 1 filho
+			} else if (node->left || node->right){ //case have 1 child
 				if (node->left){
 					this->swapNode(node, node->left);
 				} else {
@@ -139,25 +146,25 @@ namespace ft
 				}
 			}
 			delete node;
-			this->size --;
+			this->size--;
 		};
 
-		void	connectFamily(Node<Key, T> *from, Node<Key, T> *to){
-			Node<Key, T> *fromParent = from->parent;
-			Node<Key, T> *fromLeft = from->left;
-			Node<Key, T> *fromRight = from->right;
-			if (fromParent){
-				if (this->getDirection(from) == 1)
-					fromParent->left = to;
-				else
-					fromParent->right = to;
+		void	connectFamily(Node<Key, T> *node){
+			if (node->parent){
+				if (getDirection(node) == RIGHT)
+					node->parent->right = node;
+				else 					
+					node->parent->left = node;
 			}
-			else
-				this->root = to;
-			if (fromLeft)
-				fromLeft->parent = to;
-			if (fromRight)
-				fromRight->parent = to;
+			else 
+				this->root = node;
+			if (node->left){
+				node->left->parent = node;
+			}
+			if (node->right){
+				node->right->parent = node;
+			}
+
 		}
 
 		void	swapPointers(Node<Key, T> *node1, Node<Key, T> *node2){
@@ -165,18 +172,18 @@ namespace ft
 			Node<Key, T> *leftHolder = node1->left;
 			Node<Key, T> *rightHolder = node1->right;
 			this->swap(node1->color, node2->color);
-			node1->parent = node2->parent == node1 ? NULL : node2->parent;
-			node1->left = node2->left == node1 ? NULL : node2->left;
-			node1->right = node2->right == node1 ? NULL : node2->right;
-			node2->parent = parentHolder == node2 ? NULL : parentHolder;
-			node2->left = leftHolder == node2 ? NULL : leftHolder;
-			node2->right = rightHolder == node2 ? NULL : rightHolder;
+			node1->parent = node2->parent == node1 ? node2 : node2->parent;
+			node1->left = node2->left == node1 ? node2 : node2->left;
+			node1->right = node2->right == node1 ? node2 : node2->right;
+			node2->parent = parentHolder == node2 ? node1 : parentHolder;
+			node2->left = leftHolder == node2 ? node1 : leftHolder;
+			node2->right = rightHolder == node2 ? node1 : rightHolder;
 		}
 
 		void	swapNode(Node<Key, T> *node, Node<Key, T> *sub){
-			this->connectFamily(node, sub);
-			this->connectFamily(sub, node);
 			this->swapPointers(node, sub);
+			this->connectFamily(sub);
+			this->connectFamily(node);
 		}
 
 
@@ -186,17 +193,18 @@ namespace ft
 			n1 = n2;
 			n2 = holder;
 		}
+
 		Node<Key, T> *find(Key key, Node<Key, T> *root = NULL){
 			if (!root)
 				root = this->root;			
-			Node<Key, T> *init = root;
+			Node<Key, T> *init = this->root;
 			while (init)
 			{
 				if (key == init->value->first){
 					return init;
-				} else if (key < init->value->first)
+				} else if (_comp(key, init->value->first))
 					init = init->left;
-				else if (key > init->value->first)
+				else if (!_comp(key, init->value->first))
 					init = init->right;
 			}
 			return NULL;
@@ -223,42 +231,42 @@ namespace ft
 		typedef ft::pair<const Key, T> value_type;
 
 	public:
-		RedBlackTree(Allocator *alloc): BstAlgorithm<Key, T>(alloc){
+		RedBlackTree(Allocator *alloc = new Allocator()): BstAlgorithm<Key, T>(alloc){
 
 		};
 		~RedBlackTree(){};
 
 	
-		void mergeTrees(Node<Key, T> *node, Node<Key, T> **root = NULL){
+		void mergeTrees(Node<Key, T> *node, Node<Key, T> **root){
 			if (!node)
 				return ;
 			this->findSlot(node, root);
-			this->mergeTrees(node->left);
-			this->mergeTrees(node->right);
+			this->mergeTrees(node->left, root);
+			this->mergeTrees(node->right, root);
 		};
 
 		void rotate(Node<Key, T> *node){
-			if (ft::BstAlgorithm<Key, T>::getDirection(node) == 2){
+			size_t holder_size = this->size;
+			if (ft::BstAlgorithm<Key, T>::getDirection(node) == RIGHT){
 				this->rotateLeft(node);
 				
 			} else
 				this->rotateRight(node);
+			this->size = holder_size;
 		}
 
 		void rotateLeft(Node<Key, T> *node){
 			Node<Key, T> *old_parent = node->parent;
 			old_parent->right = NULL;
 			node->parent = node->parent->parent;
-			if (old_parent->parent && ft::BstAlgorithm<Key, T>::getDirection(old_parent) == 2){
-				node->parent->right = node;
-			} else if (old_parent->parent)
+			if (old_parent->parent && ft::BstAlgorithm<Key, T>::getDirection(old_parent) == LEFT){
 				node->parent->left = node;
+			} else if (old_parent->parent)
+				node->parent->right = node;
 			Node<Key, T> *leftTree = node->left;
 			node->left = old_parent;
 			old_parent->parent = node;
-			size_t holder_size = this->size;
 			this->mergeTrees(leftTree, &node->left);
-			this->size = holder_size;
 			if (old_parent == this->root)
 				this->root = node;
 		};
@@ -268,10 +276,10 @@ namespace ft
 			
 			old_parent->left = NULL;
 			node->parent = node->parent->parent;
-			if (old_parent->parent && ft::BstAlgorithm<Key, T>::getDirection(old_parent) == 2){
-				node->parent->right = node;
-			} else if (old_parent->parent)
+			if (old_parent->parent && ft::BstAlgorithm<Key, T>::getDirection(old_parent) == LEFT){
 				node->parent->left = node;
+			} else if (old_parent->parent)
+				node->parent->right = node;
 
 			Node<Key, T> *right = node->right;
 			node->right = old_parent;
@@ -282,7 +290,6 @@ namespace ft
 		};
 
 		Node<Key, T> *getSibling(Node<Key, T> *node){
-			
 			if (!node->parent)
 				return NULL;
 			if(node->parent->left != node)
@@ -291,44 +298,57 @@ namespace ft
 		};
 
 		int getSiblingColor(Node<Key, T> *node){
-			
 			if (!node->parent)
-				return 0;
+				return BLACK;
 			if (node->parent->left != node){
 				if (node->parent->left)
 					return node->parent->left->color;
-				return 0;
+				return BLACK;
 			}
 			if (node->parent->right)
 				return node->parent->right->color;
-			return 0;
+			return BLACK;
+		};
+
+		int getParentSiblingColor(Node<Key, T> *node){
+			if (!node->parent)
+				return (BLACK);
+			if (!node->parent->parent)
+				return (BLACK);
+			Node<Key, T> *sibling;
+			if (node->parent->parent->left != node->parent)
+				sibling = node->parent->parent->left;
+			else
+				sibling = node->parent->parent->right;
+			if (sibling)
+				return (sibling->color);
+			return (BLACK);
 		};
 
 		void	reddish(Node<Key, T> *node){
-			node->color = 1;
-
-			if (node->parent->color == 0){
+			node->color = RED;
+			if (node->parent->color == BLACK){
 				return ;
-			} else if (node->parent->color == 1){
-				int parentSiblingColor = getSiblingColor(node->parent);
-				if (parentSiblingColor == 0){
+			} else if (node->parent->color == RED){
+				int parentSiblingColor = this->getParentSiblingColor(node);
+				if (parentSiblingColor == BLACK){
 					if (ft::BstAlgorithm<Key, T>::getDirection(node) == ft::BstAlgorithm<Key, T>::getDirection(node->parent)){
 						this->rotate(node->parent);
-						node->parent->color = 0;
-						node->color = 1;
-						this->getSibling(node)->color = 1;
+						node->parent->color = BLACK;
+						node->color = RED;
+						this->getSibling(node)->color = RED;
 					} else {
 						this->rotate(node);
 						this->rotate(node);
-						node->color = 0;
+						node->color = BLACK;
 						if (node->left)
-							node->left->color = 1;
+							node->left->color = RED;
 						if (node->right)
-							node->right->color = 1;
+							node->right->color = RED;
 					}
-				} else if (parentSiblingColor == 1){
-					node->parent->color = 0;
-					this->getSibling(node->parent)->color = 0;
+				} else {
+					node->parent->color = BLACK;
+					this->getSibling(node->parent)->color = BLACK;
 					if (node->parent->parent != this->root){
 						this->reddish(node->parent->parent);
 					}
@@ -337,14 +357,14 @@ namespace ft
 		};
 
 		int opositeDirection(int dir){
-			if (dir == 1)
-				return 2;
-			return 1;			
+			if (dir == LEFT)
+				return RIGHT;
+			return LEFT;			
 		}
 
 		Node<Key, T> *getChild(Node<Key, T> *node, int dir){
 			if (node){
-				if (dir == 1)
+				if (dir == LEFT)
 					return node->left;
 				return node->right;
 			}
@@ -353,32 +373,30 @@ namespace ft
 
 
 		bool isBlack(Node<Key, T> *node){
-			return(!node || node->color == 0);
+			return(!node || node->color == BLACK);
 		};
 
 		bool isRed(Node<Key, T> *node){
-			return(node && node->color == 1);
+			return(node && node->color == RED);
 		};
 
 		void	repassBlack(Node<Key, T> *node){
 			// Case 2
-
 			if (node == this->root)
 				return ;
 			Node<Key, T> *sibling = this->getSibling(node);
 			// Case 3
 			if (sibling && isBlack(sibling) && isBlack(sibling->left) && isBlack(sibling->right)){
-				
-				sibling->color = 1;
-				if (node->parent->color == 1)
-					node->parent->color = 0;
+				sibling->color = RED;
+				if (node->parent->color == RED)
+					node->parent->color = BLACK;
 				else
 					repassBlack(node->parent);
 			}
 			// Case 4
 			else if (isRed(sibling)){
 				sibling->color = node->parent->color;
-				node->parent->color = 1;
+				node->parent->color = RED;
 				rotate(sibling);
 				repassBlack(node);
 			}
@@ -387,32 +405,32 @@ namespace ft
 				isBlack(getChild(sibling, opositeDirection(ft::BstAlgorithm<Key, T>::getDirection(node)))) && 
 				isRed(getChild(sibling,ft::BstAlgorithm<Key, T>::getDirection(node)))){
 					Node<Key, T> *nearChild = getChild(sibling,ft::BstAlgorithm<Key, T>::getDirection(node));
-					sibling->color = 1;
-					nearChild->color = 0;
-					rotate(nearChild);			
+					nearChild->color = BLACK;
+					sibling->color = RED;
+					rotate(getChild(sibling,ft::BstAlgorithm<Key, T>::getDirection(node)));
+					repassBlack(node);
 			}
 			// Case 6
-			if (isBlack(sibling) &&
+			else if (isBlack(sibling) &&
 				isRed(getChild(sibling, opositeDirection(ft::BstAlgorithm<Key, T>::getDirection(node))))){
 				sibling->color = node->parent->color;
-				node->parent->color = 0;
+				node->parent->color = BLACK;
+				getChild(sibling, opositeDirection(ft::BstAlgorithm<Key, T>::getDirection(node)))->color = BLACK;
 				rotate(sibling);
-			
-				getChild(sibling, opositeDirection(ft::BstAlgorithm<Key, T>::getDirection(node)))->color = 0;
 			}
 		};
+
 
 		void deleteNode(Node<Key, T> *node){
 			// case 1
 			if (!node->left && !node->right){
-				if (node->color == 0){
+				if (node->color == BLACK)
 					this->repassBlack(node);
-				}
 				if (node->parent){
-					if (this->getDirection(node) == 2)
-						node->parent->right = NULL;
-					else
+					if (this->getDirection(node) == LEFT)
 						node->parent->left = NULL;
+					else
+						node->parent->right = NULL;
 				}
 				else
 					this->root = NULL;
@@ -423,16 +441,16 @@ namespace ft
 			} else if (node->left && node->right){
 				Node<Key, T> *higher = this->getHigherNode(node->left);
 				this->swapNode(node, higher);
-				deleteNode(higher);
+				deleteNode(node);
 			} else if (node->left || node->right){
-				if (node->left){
+				if (node->left)
 					this->swapNode(node, node->left);
-				} else {
+				else
 					this->swapNode(node, node->right);
-				}
 				deleteNode(node);
 			}
 		};
+		
 
 		T &insert(const Key key){
 			Node<Key, T> *node = this->newNode(key);
@@ -440,15 +458,14 @@ namespace ft
 
 			found = this->findSlot(node);
 			if (found->value->first != node->value->first){
+				delete node; 
+				return found->value->second;
+			}
+			if (!node->parent && node != this->root){
 				delete node ;
 				return found->value->second;
 			}
-
-			if (!node->parent && node != this->root){//caso ja exista
-				delete node ;
-				return found->value->second;
-			}
-			else if (node == this->root){// se for o proprio root
+			else if (node == this->root){
 				return found->value->second;
 			}
 			this->reddish(node);
@@ -463,11 +480,11 @@ namespace ft
 				delete node ;
 				return false;
 			}
-			if (!node->parent && node != this->root){//caso ja exista
+			if (!node->parent && node != this->root){
 				delete node ;
 				return false;
 			}
-			else if (node == this->root){// se for o proprio root
+			else if (node == this->root){
 				return true;
 			}
 			this->reddish(node);

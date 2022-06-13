@@ -98,16 +98,12 @@ public:
 		std::stringstream stdbuff;
 		std::cout << "Testing: \"void erase( iterator first, iterator last )\"\nresult: ";
 
-		ftv[1] = 2;
-		ftv[2] = 2;
-		ftv[3] = 2;
-		ftv[44] = 2;
-		ftv[5] = 2;
-		stdv[1] = 2;
-		stdv[2] = 2;
-		stdv[3] = 2;
-		stdv[44] = 2;
-		stdv[5] = 2;
+		for (int i = 1; i <= 5; i++)
+			ftv.insert(ft::make_pair(i, i));
+
+		for (int i = 1; i <= 5; i++)
+			stdv.insert(std::make_pair(i, i));
+	
 		ft::map<int, int>::iterator ftit = ftv.begin();
 		std::map<int, int>::iterator stdit = stdv.begin();
 		ftit++;
@@ -117,23 +113,27 @@ public:
 		stdit++;
 		stdit++;
 		stdit++;
+	
+
 
 		ftv.erase(ftv.begin(), ftit);
 		stdv.erase(stdv.begin(), stdit);
-
+		
 		if (ftv.size() != stdv.size())
 			std::cout << "\033[1;31mInvalid size\033[0m";
 		else
 			std::cout << "\033[1;32mCorrect size\033[0m";
 
 
+	
+
 		for(ft::map<int, int>::iterator fti = ftv.begin(); fti != ftv.end(); fti++)
-			ftbuff << fti->first;
+			ftbuff << fti->first <<  " " << fti->second << std::endl;
 		for(std::map<int, int>::iterator stdi = stdv.begin(); stdi != stdv.end(); stdi++)
-			stdbuff << stdi->first;
+			stdbuff << stdi->first <<  " " << stdi->second << std::endl;;
 
 		if (ftbuff.str() != stdbuff.str())
-			std::cout << " |\033[1;31mInvalid values inside map\033[0m\n";
+			std::cout << " | \033[1;31mInvalid values inside map\033[0m\n";
 		else
 			std::cout << " | \033[1;32mCorrect values inside map\033[0m\n";
 		std::cout << "\n";
@@ -220,6 +220,80 @@ public:
 		stdv.erase(5);
 		stdv.erase(6);
 		stdbuff << stdi2->first << " " << stdi2->second;
+
+		if (ftv.size() != stdv.size())
+			std::cout << "\033[1;31mInvalid size\033[0m" ;
+		else
+			std::cout << "\033[1;32mCorrect size\033[0m";
+
+
+		if (ftbuff.str() != stdbuff.str())
+			std::cout << " | \033[1;31mInvalid iteration\033[0m" ;
+		else
+			std::cout << " | \033[1;32mCorrect iteration\033[0m" ;
+
+		for(ft::map<int, int>::iterator fti = ftv.begin(); fti != ftv.end(); fti++)
+			ftbuff << fti->first;
+		for(std::map<int, int>::iterator stdi = stdv.begin(); stdi != stdv.end(); stdi++)
+			stdbuff << stdi->first;
+
+		if (ftbuff.str() != stdbuff.str())
+			std::cout << " |\033[1;31mInvalid values inside map\033[0m\n" ;
+		else
+			std::cout << " | \033[1;32mCorrect values inside map\033[0m\n" ;
+		std::cout << "\n";
+	};
+
+	static void erase5(){
+		ft::map<int, int> ftv;
+		std::map<int, int> stdv;
+
+		std::stringstream ftbuff;
+		std::stringstream stdbuff;
+		std::cout << "Testing: \"size_type erase( const Key& key )\"//With an iterator already instantiated \nresult: ";
+
+		ftv[1] = 2;
+		ftv[2] = 2;
+		ftv[3] = 2;
+		ftv[4] = 2;
+		ftv[5] = 2;
+		ftv[6] = 2;
+		ftv[7] = 2;
+		stdv[1] = 2;
+		stdv[2] = 2;
+		stdv[3] = 2;
+		stdv[4] = 2;
+		stdv[5] = 2;
+		stdv[6] = 2;
+		stdv[7] = 2;
+
+
+		ft::map<int, int>::iterator fti2 = ftv.begin();
+		std::map<int, int>::iterator stdi2 = stdv.begin();
+		
+		ftbuff << fti2->first << " " << fti2->second<< "\n";
+		ftv.erase(2);
+		fti2++;
+		ftbuff << fti2->first << " " << fti2->second<< "\n";
+		fti2++;
+		ftbuff << fti2->first << " " << fti2->second<< "\n";
+		fti2++;
+		ftbuff << fti2->first << " " << fti2->second<< "\n";
+		fti2++;
+		ftbuff << fti2->first << " " << fti2->second<< "\n";
+		
+		stdbuff << stdi2->first << " " << stdi2->second<< "\n";
+		stdv.erase(2);
+		stdi2++;
+		stdbuff << stdi2->first << " " << stdi2->second<< "\n";
+		stdi2++;
+		stdbuff << stdi2->first << " " << stdi2->second<< "\n";
+		stdi2++;
+		stdbuff << stdi2->first << " " << stdi2->second<< "\n";
+		stdi2++;
+		stdbuff << stdi2->first << " " << stdi2->second<< "\n";
+	
+
 
 		if (ftv.size() != stdv.size())
 			std::cout << "\033[1;31mInvalid size\033[0m" ;
@@ -403,6 +477,8 @@ public:
 	static void insert2(){
 		ft::map<int, int> ftv;
 		std::map<int, int> stdv;
+		ft::map<int, int> ftv2;
+		std::map<int, int> stdv2;
 
 		std::stringstream ftbuff;
 		std::stringstream stdbuff;
@@ -423,24 +499,21 @@ public:
 		std::map<int, int>::iterator stdit = stdv.begin();
 		ftit++;
 		ftit++;
-		ftit++;
-		stdit++;
 		stdit++;
 		stdit++;
 
-		ftv.insert(ftit, ftv.end());
-		stdv.insert(stdit, stdv.end());
+		ftv2.insert(ftv.begin(), ftit);
+		stdv2.insert(stdv.begin(), stdit);
 
-
-		if (ftv.size() != stdv.size())
+		if (ftv2.size() != stdv2.size())
 			std::cout << "\033[1;31mInvalid size\033[0m ";
 		else
 			std::cout << "\033[1;32mCorrect size\033[0m";
 
 
-		for(ft::map<int, int>::iterator fti = ftv.begin(); fti != ftv.end(); fti++)
+		for(ft::map<int, int>::iterator fti = ftv2.begin(); fti != ftv2.end(); fti++)
 			ftbuff << fti->first;
-		for(std::map<int, int>::iterator stdi = stdv.begin(); stdi != stdv.end(); stdi++)
+		for(std::map<int, int>::iterator stdi = stdv2.begin(); stdi != stdv2.end(); stdi++)
 			stdbuff << stdi->first;
 
 		if (ftbuff.str() != stdbuff.str())

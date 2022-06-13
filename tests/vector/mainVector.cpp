@@ -109,7 +109,5 @@ int main(void)
 	sleep(1);
 	testBenchmark::testTime4();
 	sleep(1);
-	testBenchmark::testTime5();
-	sleep(1);
 	return 0;
 }

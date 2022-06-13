@@ -1,7 +1,6 @@
 #if !defined(BIDIRECTIONAL_ITERATOR_HPP)
 #define BIDIRECTIONAL_ITERATOR_HPP
 #include <iostream>
-// #include "BstAlgorithm.hpp"
 #include "RedBlackTree.hpp"
 
 namespace ft {
@@ -61,19 +60,13 @@ template <typename Key, typename T> struct bidirectional_iterator
 		};
 
 		ft::pair<const Key, T> &operator*()  {
-			// if (this->_end){
-			// 	this->_pair = new ft::pair<const Key, T> (dynamic_cast<Key>(_size), T());
-			// 	return *this->_pair;
-			// }
 			return *_node->value;
 		};
 
     	ft::pair<const Key, T> *operator->() {
-			// if(this->_end){
-			// 	this->_pair = new ft::pair<const Key, T> (dynamic_cast<Key>(_size), T());
-			// 	return this->_pair;
-			// }
-			return _node->value;
+			if (!this->_end)
+				return _node->value;
+			return NULL;
 		};
 
 		bidirectional_iterator& operator++() {
@@ -176,7 +169,5 @@ template <typename Key, typename T> struct bidirectional_iterator
 
 	};
 };
-
-
 
 #endif // BIDIRECtIONAL_ITERATOR_HPP

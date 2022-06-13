@@ -39,8 +39,7 @@ int main()
 	sleep(1);
 	testCapacity::size();
 	sleep(1);
-	// testCapacity::max_size();
-	// sleep(1);
+
 	std::cout << "------------------------------------" << std::endl;
 	std::cout << "Testing Modifiers" << std::endl;
 	testModifiers::clear();
@@ -52,6 +51,7 @@ int main()
 	testModifiers::erase3();
 	sleep(1);
 	testModifiers::erase4();
+	testModifiers::erase5();
 	sleep(1);
 	testModifiers::swap();
 	sleep(1);
@@ -73,14 +73,14 @@ int main()
 	sleep(1);
 	testLookup::equal_range();
 	sleep(1);
-	std::cout << "------------------------------------" << std::endl;
-	std::cout << "Testing Benchmark" << std::endl;
-	testBenchmark::testTime();
-	sleep(1);
-	testBenchmark::testTime2();
-	sleep(1);
-	testBenchmark::testTime3();
+	// std::cout << "------------------------------------" << std::endl;
+	// std::cout << "Testing Benchmark" << std::endl;
+	// testBenchmark::testTime();
 	// sleep(1);
-	std::cout << "------------------------------------" << std::endl;
+	// testBenchmark::testTime2();
+	// sleep(1);
+	// testBenchmark::testTime3();
+	// sleep(1);
+	// std::cout << "------------------------------------" << std::endl;
 	return 0;
 }

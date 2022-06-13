@@ -9,7 +9,6 @@
 #include "utility.hpp"
 #include "biderectional_iterator.hpp"
 #include "reverse_iterator.hpp"
-#include "vector.hpp"
 
 namespace ft
 {
@@ -85,10 +84,8 @@ namespace ft
 
 			// Operator=
 			map& operator=( const map& other ){
-				if (this != &other){
-					this->clear();
-					this->insert(other.begin(), other.end());
-				}
+				this->clear();
+				this->insert(other.begin(), other.end());
 				return *this;
 			};
 			
@@ -313,11 +310,11 @@ namespace ft
 			*/
 			void erase( iterator first, iterator last ){
 				iterator holder;
-				for (; first != last;){
+				while(first != last){
 					holder = first;
 					first++;
-					this->_node.remove(holder->first);		
-				}
+					this->erase(holder->first);
+				}	
 			};
 
 			// /*
@@ -375,12 +372,8 @@ namespace ft
 			** @return Returns a pair consisting of an iterator to the inserted element (or to the element that prevented the insertion) and a bool denoting whether the insertion took place.
 			*/
 			iterator insert( iterator hint, const value_type& value ){
-				ft::RedBlackTree<Key, T> subtree(&this->_alloc);
-				
-				subtree.root = this->_node.find(hint->first);
-				if (subtree.insert(value)){
-					this->_node.size++;
-				}
+				(void)hint;
+				this->_node.insert(value);
 				return iterator(this->_node.find(value.first), 
 					this->_node.getLowerNode(this->_node.root),
 					this->_node.getHigherNode(this->_node.root),
@@ -396,9 +389,10 @@ namespace ft
 			*/
 			template< class InputIt >
 			void insert( InputIt first, InputIt last ){
-				for (; first != last; first++){
+				while (first != last){
 					this->_node.insert(first->first) = first->second;
-				}				
+					first++;
+				}
 			};
 
 

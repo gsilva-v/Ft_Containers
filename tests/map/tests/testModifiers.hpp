@@ -207,16 +207,12 @@ public:
 		std::map<int, int>::iterator stdi2 = --(stdv.end());
 		ftv.erase(1);
 		ftv.erase(2);
-		ftv.erase(3);
-		ftv.erase(4);
 		ftv.erase(5);
 		ftv.erase(6);
 		ftbuff << fti2->first << " " << fti2->second;
 
 		stdv.erase(1);
 		stdv.erase(2);
-		stdv.erase(3);
-		stdv.erase(4);
 		stdv.erase(5);
 		stdv.erase(6);
 		stdbuff << stdi2->first << " " << stdi2->second;

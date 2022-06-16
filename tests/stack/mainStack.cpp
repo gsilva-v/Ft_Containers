@@ -19,7 +19,7 @@ int main()
 		std::cout << "\nTesting: \"stack( const stack& other )\"\nresult: ";
 		ft::vector<int> ftv(5);
 		ft::stack<int> fts(ftv);
-		ft::stack<int> fts2(fts2);
+		ft::stack<int> fts2(fts);
 		std::cout << "\033[1;32mOk\033[0m\n";
 	}
 

@@ -325,7 +325,7 @@ namespace ft
 			// ** @return Number of elements removed (0 or 1)
 			// */
 			size_type erase( const Key& key ){
-				int res = this->_node.remove(key);
+				bool res = this->_node.remove(key);
 				return res;
 			};
 

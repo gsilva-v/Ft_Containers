@@ -134,6 +134,41 @@ public:
 		}
 		
 	}
+	
+	static void	testTime4(){
+		std::cout <<"Testing: Inserting with make pair" << std::endl;
+		{
+			struct timeval time_now;   
+			gettimeofday(&time_now, NULL);   
+			time_t start = (time_now.tv_sec * 1000) + (time_now.tv_usec / 1000);
+			std::stringstream buf;
+			std::map<int, int> stdv;
+			
+			for (int i = 1; i < 100000; i++){
+				stdv.insert(std::make_pair(i, i * 3));
+			}
+
+			gettimeofday(&time_now, NULL);   
+			time_t finish = (time_now.tv_sec * 1000) + (time_now.tv_usec / 1000);
+			std::cout <<"std: "<<  finish - start << " ms" << std::endl;
+		}
+		{
+			struct timeval time_now;   
+			gettimeofday(&time_now, NULL);   
+			time_t start = (time_now.tv_sec * 1000) + (time_now.tv_usec / 1000);
+			std::stringstream buf;
+			ft::map<int, int> stdv;
+			
+			for (int i = 1; i < 100000; i++){
+				stdv.insert(ft::make_pair(i, i * 3));
+			}
+			
+			stdv.clear();
+			gettimeofday(&time_now, NULL);   
+			time_t finish = (time_now.tv_sec * 1000) + (time_now.tv_usec / 1000);
+			std::cout <<"ft: "<<  finish - start << " ms" << std::endl;
+		}	
+	}
 
 	~testBenchmark();
 };

@@ -14,15 +14,15 @@ all:	${NAME}
 
 ${NAME}:	${OBJS}
 
-vector: all
+vector: fclean all
 	${CC} ${CFLAGS} -o vector ./tests/vector/mainVector.o
 	./vector
 
-map: all
+map: fclean all
 	${CC} ${CFLAGS} -o map ./tests/map/mainMap.o
 	./map
 
-stack: all
+stack: fclean all
 	${CC} ${CFLAGS} -o stack ./tests/stack/mainStack.o
 	./stack
 
